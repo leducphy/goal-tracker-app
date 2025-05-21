@@ -1,50 +1,68 @@
-# Welcome to your Expo app 👋
+# Goal Tracker
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A mobile application built with React Native and Expo to help users track their goals, finances, and overall progress.
 
-## Get started
+## Features
 
-1. Install dependencies
+- **Login Screen**: Simple authentication flow
+- **Curved Bottom Tab Navigation**: Beautiful curved tab bar with 4 main sections
+- **Overview Screen**: Dashboard showing goal progress and statistics
+- **Goals Screen**: Manage and track various goals with categories
+- **Finance Screen**: Track financial goals and transactions 
+- **Profile Screen**: User profile management
 
-   ```bash
-   npm install
-   ```
+## Technologies
 
-2. Start the app
+- React Native
+- Expo
+- TypeScript
+- React Navigation
+- React Native Curved Bottom Bar
 
-   ```bash
-   npx expo start
-   ```
+## Project Structure
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+/src
+  /components        # Reusable UI components
+  /constants         # App constants (theme, configurations)
+  /navigation        # Navigation configuration
+  /screens           # App screens
+    - LoginScreen.tsx
+    - OverviewScreen.tsx
+    - GoalsScreen.tsx
+    - FinanceScreen.tsx
+    - ProfileScreen.tsx
+  /utils             # Utility functions
+  App.tsx            # Main App component
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Getting Started
 
-## Learn more
+### Prerequisites
 
-To learn more about developing your project with Expo, look at the following resources:
+- Node.js
+- npm or yarn
+- Expo CLI
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Installation
 
-## Join the community
+1. Clone the repository
+2. Install dependencies:
+   ```
+   npm install
+   ```
+3. Start the development server:
+   ```
+   npm start
+   ```
 
-Join our community of developers creating universal apps.
+## Screenshots
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+*Screenshots will be added when available*
+
+## Development Roadmap
+
+- Add actual authentication
+- Implement data persistence with AsyncStorage
+- Connect to a backend API
+- Add push notifications for goal reminders
