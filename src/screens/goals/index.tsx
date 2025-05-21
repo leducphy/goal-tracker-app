@@ -231,6 +231,7 @@ const GoalsScreen: React.FC = () => {
             </LinearGradient>
           </TouchableOpacity>
         </View>
+        <View style={styles.bottomSpacer} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -403,6 +404,9 @@ const styles = StyleSheet.create({
   tabLabel: {
     fontSize: 14,
     fontWeight: '500',
+  },
+  bottomSpacer: {
+    height: 80, // Add extra space to avoid content being hidden by tab bar
   },
 });
 

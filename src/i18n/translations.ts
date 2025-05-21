@@ -9,10 +9,25 @@ export const translations = {
     all: "Tất cả",
     // Auth
     login: "Đăng nhập",
+    register: "Đăng ký",
     email: "Email",
     password: "Mật khẩu",
+    confirmPassword: "Xác nhận mật khẩu",
     enterEmail: "Nhập email của bạn",
     enterPassword: "Nhập mật khẩu",
+    loginMessage: "Đăng nhập để tiếp tục",
+    registerMessage: "Tạo tài khoản mới",
+    forgotPassword: "Quên mật khẩu?",
+    noAccount: "Chưa có tài khoản?",
+    hasAccount: "Đã có tài khoản?",
+    orLoginWith: "Hoặc đăng nhập với",
+    loginSuccess: "Đăng nhập thành công",
+    registerSuccess: "Đăng ký thành công",
+    accountCreatedSuccess: "Tài khoản của bạn đã được tạo thành công!",
+    passwordResetInstructions: "Hướng dẫn khôi phục mật khẩu sẽ được gửi tới email của bạn",
+    passwordRecovery: "Khôi phục mật khẩu",
+    loginWithSocial: "Đăng nhập với",
+    featureInDevelopment: "Tính năng đang được phát triển",
 
     // Navigation Tabs
     overview: "Tổng quan",
@@ -173,7 +188,6 @@ export const translations = {
     phoneNumber: "Số điện thoại",
     currentPassword: "Mật khẩu hiện tại",
     newPassword: "Mật khẩu mới",
-    confirmPassword: "Xác nhận mật khẩu mới",
     saveChanges: "Lưu thay đổi",
 
     // Notifications Settings
@@ -300,13 +314,27 @@ export const translations = {
     confirm: "Confirm",
     back: "Back",
     all: "All",
-
     // Auth
     login: "Login",
+    register: "Register",
     email: "Email",
     password: "Password",
+    confirmPassword: "Confirm Password",
     enterEmail: "Enter your email",
     enterPassword: "Enter your password",
+    loginMessage: "Login to continue",
+    registerMessage: "Create a new account",
+    forgotPassword: "Forgot password?",
+    noAccount: "Don't have an account?",
+    hasAccount: "Already have an account?",
+    orLoginWith: "Or login with",
+    loginSuccess: "Login successful",
+    registerSuccess: "Registration successful",
+    accountCreatedSuccess: "Your account has been created successfully!",
+    passwordResetInstructions: "Password reset instructions will be sent to your email",
+    passwordRecovery: "Password Recovery",
+    loginWithSocial: "Login with",
+    featureInDevelopment: "This feature is under development",
 
     // Navigation Tabs
     overview: "Overview",
@@ -467,7 +495,6 @@ export const translations = {
     phoneNumber: "Phone Number",
     currentPassword: "Current Password",
     newPassword: "New Password",
-    confirmPassword: "Confirm Password",
     saveChanges: "Save Changes",
 
     // Notifications Settings

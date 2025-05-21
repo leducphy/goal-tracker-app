@@ -404,6 +404,9 @@ const OverviewScreen: React.FC = () => {
           longTermData={longTermData}
           shortTermData={shortTermData}
         />
+
+        {/* Add bottom padding to avoid content being hidden by nav bar */}
+        <View style={styles.bottomSpacer} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -463,12 +466,13 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 16,
+    paddingBottom: 24,
   },
   upcomingGoalsContainer: {
     backgroundColor: 'white',
     borderRadius: 12,
     padding: 16,
-    marginBottom: 24,
+    marginBottom: 28,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -522,7 +526,7 @@ const styles = StyleSheet.create({
   },
   statsContainer: {
     flexDirection: 'row',
-    marginBottom: 16,
+    marginBottom: 24,
   },
   statSpacer: {
     width: 12,
@@ -531,7 +535,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 12,
     padding: 16,
-    marginBottom: 24,
+    marginBottom: 28,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -569,7 +573,7 @@ const styles = StyleSheet.create({
   journalContainer: {
     borderRadius: 12,
     padding: 24,
-    marginBottom: 24,
+    marginBottom: 28,
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 2,
@@ -605,6 +609,9 @@ const styles = StyleSheet.create({
   newJournalButtonText: {
     color: 'white',
     fontWeight: '600',
+  },
+  bottomSpacer: {
+    height: 80, // Add extra space to avoid content being hidden by tab bar
   },
 });
 
