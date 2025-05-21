@@ -18,11 +18,11 @@ const LongTermGoalsScreen: React.FC = () => {
   const navigation = useNavigation<LongTermGoalsScreenNavigationProp>();
   const [activeTab, setActiveTab] = useState(0);
   
-  const tabs = [
-    { id: 0, name: t('allGoals') },
+  const statusFilters = [
+    { id: 0, name: t('ltgAllGoals') },
     { id: 1, name: t('inProgressStatus') },
     { id: 2, name: t('completedStatus') },
-    { id: 3, name: t('overdueTab') }
+    { id: 3, name: t('overdueStatus') },
   ];
   
   const handleCreateGoal = () => {
@@ -52,7 +52,7 @@ const LongTermGoalsScreen: React.FC = () => {
       </View>
       
       <View style={styles.tabContainer}>
-        {tabs.map(tab => (
+        {statusFilters.map(tab => (
           <TouchableOpacity
             key={tab.id}
             style={[

@@ -1,8 +1,16 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  useWindowDimensions
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { RootStackParamList } from '../../App';
@@ -17,6 +25,7 @@ const GoalsScreen: React.FC = () => {
   const { t } = useTranslation();
   const navigation = useNavigation<GoalsScreenNavigationProp>();
   const [activeTab, setActiveTab] = useState(0);
+  const { width } = useWindowDimensions();
 
   const goToLongTermGoals = () => {
     navigation.navigate(ROUTES.LONG_TERM_GOALS);
@@ -61,11 +70,11 @@ const GoalsScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <View style={[styles.header, { backgroundColor: theme.colors.card, borderBottomColor: theme.colors.border }]}>
+      <View style={[styles.header, { backgroundColor: theme.colors.background }]}>
         <Text style={[styles.headerTitle, { color: theme.colors.text }]}>Mục tiêu</Text>
       </View>
 
-      <ScrollView style={styles.content}>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Mục tiêu dài hạn */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -73,7 +82,7 @@ const GoalsScreen: React.FC = () => {
               <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Mục tiêu dài hạn</Text>
             </View>
             <TouchableOpacity 
-              style={[styles.createButton, { backgroundColor: theme.colors.card }]}
+              style={[styles.createButton, { backgroundColor: `${theme.colors.primary}20` }]}
               onPress={goToCreateGoal}
             >
               <Ionicons name="add-circle" size={18} color={theme.colors.primary} />
@@ -82,17 +91,35 @@ const GoalsScreen: React.FC = () => {
           </View>
           
           <TouchableOpacity 
-            style={[styles.sectionContent, { backgroundColor: theme.colors.card }]}
+            style={styles.cardShadow}
             onPress={goToLongTermGoals}
+            activeOpacity={0.8}
           >
-            <Ionicons name="flag" size={24} color={theme.colors.primary} style={styles.sectionIcon} />
-            <View style={styles.sectionTextContainer}>
-              <Text style={[styles.sectionContentTitle, { color: theme.colors.text }]}>3 mục tiêu đang thực hiện</Text>
-              <Text style={[styles.sectionContentSubtitle, { color: theme.colors.textSecondary }]}>
-                Theo dõi và quản lý các mục tiêu dài hạn của bạn
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={theme.colors.textSecondary} />
+            <LinearGradient
+              colors={['#4776E6', '#8E54E9']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.gradientCard}
+            >
+              <View style={styles.cardContent}>
+                <View style={styles.cardIconContainer}>
+                  <Ionicons name="flag" size={28} color="#fff" />
+                </View>
+                <View style={styles.cardTextContainer}>
+                  <Text style={styles.cardTitle}>3 mục tiêu đang thực hiện</Text>
+                  <Text style={styles.cardSubtitle}>
+                    Theo dõi và quản lý các mục tiêu dài hạn của bạn
+                  </Text>
+                </View>
+              </View>
+              
+              <View style={styles.cardProgressSection}>
+                <View style={styles.progressBarBackground}>
+                  <View style={[styles.progressBar, { width: '60%', backgroundColor: '#fff' }]} />
+                </View>
+                <Text style={styles.progressText}>60% hoàn thành</Text>
+              </View>
+            </LinearGradient>
           </TouchableOpacity>
         </View>
 
@@ -108,17 +135,48 @@ const GoalsScreen: React.FC = () => {
           </View>
           
           <TouchableOpacity 
-            style={[styles.sectionContent, { backgroundColor: theme.colors.card }]}
+            style={styles.cardShadow}
             onPress={goToGoalGroups}
+            activeOpacity={0.8}
           >
-            <Ionicons name="people" size={24} color={theme.colors.primary} style={styles.sectionIcon} />
-            <View style={styles.sectionTextContainer}>
-              <Text style={[styles.sectionContentTitle, { color: theme.colors.text }]}>2 nhóm đã tham gia</Text>
-              <Text style={[styles.sectionContentSubtitle, { color: theme.colors.textSecondary }]}>
-                Khám phá và tham gia các nhóm mục tiêu mới
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={theme.colors.textSecondary} />
+            <LinearGradient
+              colors={['#FF5F6D', '#FFC371']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.gradientCard}
+            >
+              <View style={styles.cardContent}>
+                <View style={styles.cardIconContainer}>
+                  <Ionicons name="people" size={28} color="#fff" />
+                </View>
+                <View style={styles.cardTextContainer}>
+                  <Text style={styles.cardTitle}>2 nhóm đã tham gia</Text>
+                  <Text style={styles.cardSubtitle}>
+                    Khám phá và tham gia các nhóm mục tiêu mới
+                  </Text>
+                </View>
+              </View>
+              
+              <View style={styles.groupMembersRow}>
+                {[1, 2, 3, 4].map((_, index) => (
+                  <View 
+                    key={index} 
+                    style={[
+                      styles.memberAvatar, 
+                      { 
+                        backgroundColor: ['#FFD6E3', '#D2FFFC', '#FFF7D6', '#D6FCFF'][index],
+                        marginLeft: index > 0 ? -10 : 0
+                      }
+                    ]}
+                  >
+                    <Text style={styles.memberInitial}>{['M', 'T', 'H', 'N'][index]}</Text>
+                  </View>
+                ))}
+                <View style={styles.moreMembers}>
+                  <Text style={styles.moreMembersText}>+12</Text>
+                </View>
+              </View>
+            </LinearGradient>
           </TouchableOpacity>
         </View>
 
@@ -134,17 +192,43 @@ const GoalsScreen: React.FC = () => {
           </View>
           
           <TouchableOpacity 
-            style={[styles.sectionContent, { backgroundColor: theme.colors.card }]}
+            style={styles.cardShadow}
             onPress={goToAchievements}
+            activeOpacity={0.8}
           >
-            <Ionicons name="trophy" size={24} color={theme.colors.primary} style={styles.sectionIcon} />
-            <View style={styles.sectionTextContainer}>
-              <Text style={[styles.sectionContentTitle, { color: theme.colors.text }]}>12/30 thành tựu đạt được</Text>
-              <Text style={[styles.sectionContentSubtitle, { color: theme.colors.textSecondary }]}>
-                Cấp độ hiện tại: 5 • Streak: 12 ngày
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color={theme.colors.textSecondary} />
+            <LinearGradient
+              colors={['#11998e', '#38ef7d']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.gradientCard}
+            >
+              <View style={styles.cardContent}>
+                <View style={styles.cardIconContainer}>
+                  <Ionicons name="trophy" size={28} color="#fff" />
+                </View>
+                <View style={styles.cardTextContainer}>
+                  <Text style={styles.cardTitle}>12/30 thành tựu đạt được</Text>
+                  <Text style={styles.cardSubtitle}>
+                    Cấp độ hiện tại: 5 • Streak: 12 ngày
+                  </Text>
+                </View>
+              </View>
+              
+              <View style={styles.achievementsContainer}>
+                <View style={styles.achievementBadge}>
+                  <Ionicons name="flame" size={18} color="#fff" />
+                </View>
+                <View style={styles.achievementBadge}>
+                  <Ionicons name="star" size={18} color="#fff" />
+                </View>
+                <View style={[styles.achievementBadge, styles.lockedBadge]}>
+                  <Ionicons name="medal" size={18} color="rgba(255,255,255,0.5)" />
+                </View>
+                <View style={[styles.achievementBadge, styles.lockedBadge]}>
+                  <Ionicons name="ribbon" size={18} color="rgba(255,255,255,0.5)" />
+                </View>
+              </View>
+            </LinearGradient>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -159,10 +243,9 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 20,
     paddingVertical: 16,
-    borderBottomWidth: 1,
   },
   headerTitle: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: 'bold',
   },
   content: {
@@ -191,33 +274,121 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 8,
+    borderRadius: 20,
   },
   createButtonText: {
     fontSize: 14,
     fontWeight: '500',
     marginLeft: 6,
   },
-  sectionContent: {
+  cardShadow: {
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    marginBottom: 12,
+  },
+  gradientCard: {
+    borderRadius: 16,
+    padding: 16,
+    overflow: 'hidden',
+  },
+  cardContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 8,
+    marginBottom: 16,
   },
-  sectionIcon: {
+  cardIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: 16,
   },
-  sectionTextContainer: {
+  cardTextContainer: {
     flex: 1,
   },
-  sectionContentTitle: {
-    fontSize: 16,
-    fontWeight: '500',
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
     marginBottom: 4,
   },
-  sectionContentSubtitle: {
+  cardSubtitle: {
     fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.8)',
+  },
+  cardProgressSection: {
+    width: '100%',
+  },
+  progressBarBackground: {
+    height: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: '100%',
+    borderRadius: 3,
+  },
+  progressText: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginTop: 6,
+    textAlign: 'right',
+  },
+  groupMembersRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  memberAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.8)',
+  },
+  memberInitial: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#222',
+  },
+  moreMembers: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    marginLeft: -10,
+  },
+  moreMembersText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  achievementsContainer: {
+    flexDirection: 'row',
+    marginTop: 10,
+  },
+  achievementBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  lockedBadge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   tabItem: {
     flexDirection: 'row',

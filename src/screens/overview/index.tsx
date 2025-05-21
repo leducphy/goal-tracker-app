@@ -18,6 +18,26 @@ import { ROUTES } from '../../constants/routes';
 
 type OverviewScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
+// Define interfaces for goals and activities
+interface UpcomingGoal {
+  id: string;
+  title: string;
+  category: string;
+  categoryType: 'work' | 'finance' | 'study';
+  deadline: string;
+  route: string;
+}
+
+interface RecentActivity {
+  id: string;
+  title: string;
+  timestamp: string;
+  type: 'completed' | 'joined' | 'badge' | 'saved' | 'other';
+  icon: keyof typeof Ionicons.glyphMap;
+  iconColor: string;
+  route: string;
+}
+
 const OverviewScreen: React.FC = () => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -57,6 +77,83 @@ const OverviewScreen: React.FC = () => {
     },
   ];
 
+  // Mock data for upcoming goals
+  const upcomingGoals: UpcomingGoal[] = [
+    {
+      id: '1',
+      title: 'Hoàn thành dự án cá nhân',
+      category: 'Công việc',
+      categoryType: 'work',
+      deadline: '15/05/2025',
+      route: ROUTES.LONG_TERM_GOALS,
+    },
+    {
+      id: '2',
+      title: 'Tiết kiệm 2 triệu',
+      category: 'Tài chính',
+      categoryType: 'finance',
+      deadline: '31/05/2025',
+      route: ROUTES.MAIN,
+    },
+    {
+      id: '3',
+      title: 'Đọc xong sách Atomic Habits',
+      category: 'Học tập',
+      categoryType: 'study',
+      deadline: '20/05/2025',
+      route: ROUTES.MAIN,
+    },
+  ];
+
+  // Mock data for recent activities
+  const recentActivities: RecentActivity[] = [
+    {
+      id: '1',
+      title: 'Bạn đã hoàn thành mục tiêu Đọc sách 30 phút',
+      timestamp: 'Hôm nay, 10:30',
+      type: 'completed',
+      icon: 'checkmark-circle',
+      iconColor: '#4CAF50',
+      route: ROUTES.MAIN,
+    },
+    {
+      id: '2',
+      title: 'Bạn đã tham gia nhóm Thiền mỗi ngày',
+      timestamp: 'Hôm qua, 18:45',
+      type: 'joined',
+      icon: 'people',
+      iconColor: '#2196F3',
+      route: ROUTES.GOAL_GROUPS,
+    },
+    {
+      id: '3',
+      title: 'Bạn đã đạt được huy hiệu 7 ngày liên tiếp',
+      timestamp: '14/05/2025',
+      type: 'badge',
+      icon: 'trophy',
+      iconColor: '#FFC107',
+      route: ROUTES.ACHIEVEMENTS,
+    },
+    {
+      id: '4',
+      title: 'Bạn đã tiết kiệm được 500.000đ cho mục tiêu Du lịch',
+      timestamp: '13/05/2025',
+      type: 'saved',
+      icon: 'wallet',
+      iconColor: '#9C27B0',
+      route: ROUTES.MAIN,
+    },
+    {
+      id: '5',
+      title: 'Bạn đã hoàn thành mục tiêu Tập thể dục buổi sáng',
+      timestamp: '12/05/2025',
+      type: 'completed',
+      icon: 'checkmark-circle',
+      iconColor: '#4CAF50',
+      route: ROUTES.MAIN,
+    },
+  ];
+
   // Mock data for progress chart
   const longTermData: DataPoint[] = [
     { date: '15/5', value: 45 },
@@ -85,6 +182,33 @@ const OverviewScreen: React.FC = () => {
   const handleNavigateToStats = () => {
     navigation.navigate(ROUTES.STATS);
   };
+
+  const handleNavigateToJournal = () => {
+    navigation.navigate(ROUTES.JOURNAL);
+  };
+
+  const handleCreateJournalEntry = () => {
+    navigation.navigate(ROUTES.NEW_JOURNAL_ENTRY);
+  };
+
+  const navigateToMainTab = (initialTab: string) => {
+    // For tab navigation, we'd use a different approach in a real app
+    // This is a simplified version since the actual tab switching logic would depend on navigation setup
+    navigation.navigate(ROUTES.MAIN);
+  };
+
+  const getCategoryIcon = (categoryType: UpcomingGoal['categoryType']) => {
+    switch (categoryType) {
+      case 'work':
+        return 'briefcase-outline';
+      case 'finance':
+        return 'cash-outline';
+      case 'study':
+        return 'book-outline';
+      default:
+        return 'flag-outline';
+    }
+  };
   
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -107,39 +231,6 @@ const OverviewScreen: React.FC = () => {
       </View>
       
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Stats Row */}
-        <View style={styles.statsContainer}>
-          <StatCard
-            title="Mục tiêu dài hạn"
-            value="5"
-            subtitle="Xem chi tiết"
-            onPress={() => {/* Navigate to goals */}}
-          />
-          <View style={styles.statSpacer} />
-          <StatCard
-            title="Nhóm mục tiêu"
-            value="3"
-            subtitle="Xem chi tiết"
-            onPress={() => {/* Navigate to goals */}}
-          />
-        </View>
-        
-        <View style={styles.statsContainer}>
-          <StatCard
-            title="Ngày check-in liên tiếp"
-            value="12"
-            subtitle="Check-in ngày"
-            onPress={handleNavigateToCheckIn}
-          />
-          <View style={styles.statSpacer} />
-          <StatCard
-            title="Khoản vay chưa trả"
-            value="3"
-            subtitle="Xem chi tiết"
-            onPress={() => {/* Navigate to finance */}}
-          />
-        </View>
-        
         {/* Today's Progress */}
         <SectionHeader
           title="Tiến độ mục tiêu hôm nay"
@@ -162,9 +253,142 @@ const OverviewScreen: React.FC = () => {
               title={goal.title}
               category={goal.category}
               status={goal.status}
-              onPress={() => {/* Handle goal press */}}
+              onPress={() => navigateToMainTab('Goals')}
             />
           ))}
+        </View>
+        
+        {/* Upcoming Goals Section */}
+        <SectionHeader
+          title="Mục tiêu sắp đến"
+          actionText="Xem tất cả"
+          onAction={() => navigateToMainTab('Goals')}
+        />
+        <View style={styles.upcomingGoalsContainer}>
+          <Text style={[styles.upcomingGoalsSubtitle, { color: theme.colors.textSecondary }]}>
+            Các mục tiêu sắp đến hạn của bạn
+          </Text>
+          
+          {upcomingGoals.map((goal) => (
+            <TouchableOpacity 
+              key={goal.id}
+              style={[styles.upcomingGoalItem, { borderBottomColor: theme.colors.border }]}
+              onPress={() => {
+                if (goal.route === ROUTES.MAIN) {
+                  navigateToMainTab(goal.categoryType === 'finance' ? 'Finance' : 'Goals');
+                } else {
+                  navigation.navigate(goal.route as keyof RootStackParamList);
+                }
+              }}
+            >
+              <View style={styles.upcomingGoalIconContainer}>
+                <Ionicons name={getCategoryIcon(goal.categoryType) as any} size={20} color={theme.colors.primary} />
+              </View>
+              <View style={styles.upcomingGoalContent}>
+                <Text style={[styles.upcomingGoalTitle, { color: theme.colors.text }]}>{goal.title}</Text>
+                <View style={styles.upcomingGoalMeta}>
+                  <View style={styles.categoryBadge}>
+                    <Text style={styles.categoryText}>{goal.category}</Text>
+                  </View>
+                  <Text style={[styles.deadlineText, { color: theme.colors.textSecondary }]}>Hạn: {goal.deadline}</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Recent Activities */}
+        <SectionHeader
+          title="Hoạt động gần đây"
+          actionText="Xem tất cả"
+          onAction={() => navigation.navigate(ROUTES.STATS)}
+        />
+        <View style={styles.recentActivitiesContainer}>
+          {recentActivities.map((activity) => (
+            <TouchableOpacity 
+              key={activity.id}
+              style={[styles.activityItem, { borderBottomColor: theme.colors.border }]}
+              onPress={() => {
+                if (activity.route === ROUTES.MAIN) {
+                  navigateToMainTab(activity.type === 'saved' ? 'Finance' : 'Goals');
+                } else {
+                  navigation.navigate(activity.route as keyof RootStackParamList);
+                }
+              }}
+            >
+              <View style={[styles.activityIconContainer, { backgroundColor: `${activity.iconColor}15` }]}>
+                <Ionicons name={activity.icon} size={20} color={activity.iconColor} />
+              </View>
+              <View style={styles.activityContent}>
+                <Text style={[styles.activityTitle, { color: theme.colors.text }]}>{activity.title}</Text>
+                <Text style={[styles.activityTimestamp, { color: theme.colors.textSecondary }]}>{activity.timestamp}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+        
+        {/* Journal Section */}
+        <SectionHeader
+          title="Nhật ký gần đây"
+          actionText="Xem tất cả"
+          onAction={handleNavigateToJournal}
+        />
+        
+        <View style={[styles.journalContainer, { backgroundColor: theme.colors.card }]}>
+          <View style={styles.journalContent}>
+            <Ionicons name="book-outline" size={32} color={theme.colors.textSecondary} style={styles.journalIcon} />
+            <Text style={[styles.journalEmptyText, { color: theme.colors.textSecondary }]}>
+              Bạn chưa có nhật ký nào
+            </Text>
+            <Text style={[styles.journalSubtext, { color: theme.colors.textSecondary }]}>
+              Viết nhật ký để ghi lại suy nghĩ và cảm xúc của bạn
+            </Text>
+            <TouchableOpacity 
+              style={[styles.newJournalButton, { backgroundColor: theme.colors.primary }]}
+              onPress={handleCreateJournalEntry}
+            >
+              <Text style={styles.newJournalButtonText}>Viết nhật ký mới</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        
+        {/* Stats Row */}
+        <SectionHeader
+          title="Thống kê mục tiêu"
+          actionText="Xem thêm"
+          onAction={() => navigation.navigate(ROUTES.STATS)}
+        />
+        
+        <View style={styles.statsContainer}>
+          <StatCard
+            title="Mục tiêu dài hạn"
+            value="5"
+            subtitle="Xem chi tiết"
+            onPress={() => navigation.navigate(ROUTES.LONG_TERM_GOALS)}
+          />
+          <View style={styles.statSpacer} />
+          <StatCard
+            title="Nhóm mục tiêu"
+            value="3"
+            subtitle="Xem chi tiết"
+            onPress={() => navigation.navigate(ROUTES.GOAL_GROUPS)}
+          />
+        </View>
+        
+        <View style={styles.statsContainer}>
+          <StatCard
+            title="Ngày check-in liên tiếp"
+            value="12"
+            subtitle="Check-in ngày"
+            onPress={handleNavigateToCheckIn}
+          />
+          <View style={styles.statSpacer} />
+          <StatCard
+            title="Khoản vay chưa trả"
+            value="3"
+            subtitle="Xem chi tiết"
+            onPress={() => navigateToMainTab('Finance')}
+          />
         </View>
         
         {/* Progress Chart */}
@@ -240,6 +464,62 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
+  upcomingGoalsContainer: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  upcomingGoalsSubtitle: {
+    fontSize: 14,
+    marginBottom: 16,
+  },
+  upcomingGoalItem: {
+    flexDirection: 'row',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+  },
+  upcomingGoalIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0, 112, 255, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  upcomingGoalContent: {
+    flex: 1,
+  },
+  upcomingGoalTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  upcomingGoalMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  categoryBadge: {
+    backgroundColor: 'rgba(0, 112, 255, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+    marginRight: 8,
+  },
+  categoryText: {
+    fontSize: 12,
+    color: '#0070FF',
+    fontWeight: '500',
+  },
+  deadlineText: {
+    fontSize: 12,
+  },
   statsContainer: {
     flexDirection: 'row',
     marginBottom: 16,
@@ -247,8 +527,84 @@ const styles = StyleSheet.create({
   statSpacer: {
     width: 12,
   },
+  recentActivitiesContainer: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  activityItem: {
+    flexDirection: 'row',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+  },
+  activityIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  activityContent: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  activityTitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 4,
+  },
+  activityTimestamp: {
+    fontSize: 12,
+  },
   goalsContainer: {
     marginBottom: 24,
+  },
+  journalContainer: {
+    borderRadius: 12,
+    padding: 24,
+    marginBottom: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  journalContent: {
+    alignItems: 'center',
+    padding: 16,
+  },
+  journalIcon: {
+    marginBottom: 16,
+  },
+  journalEmptyText: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  journalSubtext: {
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  newJournalButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    marginTop: 8,
+  },
+  newJournalButtonText: {
+    color: 'white',
+    fontWeight: '600',
   },
 });
 

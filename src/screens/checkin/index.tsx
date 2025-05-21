@@ -21,9 +21,12 @@ interface Goal {
 type CheckInScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const CheckInScreen: React.FC = () => {
-  const theme = useTheme();
-  const { t } = useTranslation();
   const navigation = useNavigation<CheckInScreenNavigationProp>();
+  const { t } = useTranslation();
+  const theme = useTheme();
+  
+  const [activeTab, setActiveTab] = useState(0);
+  const tabs = [t('goalsAll'), t('goals'), t('work')];
   
   // Mock goals data
   const [goals, setGoals] = useState<Goal[]>([
@@ -76,9 +79,6 @@ const CheckInScreen: React.FC = () => {
   const completionPercentage = Math.round((completedGoals.length / goals.length) * 100);
   
   const renderTabs = () => {
-    const tabs = [t('all'), t('goals'), t('work')];
-    const [activeTab, setActiveTab] = useState(0);
-    
     return (
       <View style={styles.tabContainer}>
         {tabs.map((tab, index) => (

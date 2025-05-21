@@ -33,7 +33,14 @@ const ProfileScreen: React.FC = () => {
       title: t('accountInfo'),
       icon: 'person-circle' as IconName,
       color: '#0070FF',
-      onPress: () => {},
+      onPress: () => navigation.navigate(ROUTES.ACCOUNT_INFO),
+    },
+    {
+      id: 'journal',
+      title: t('journal'),
+      icon: 'book' as IconName,
+      color: '#FF9500',
+      onPress: () => navigation.navigate(ROUTES.JOURNAL),
     },
     {
       id: 'achievements',

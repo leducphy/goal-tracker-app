@@ -13,6 +13,8 @@ export const ROUTES = {
   
   // Settings routes
   SETTINGS: 'Settings',
+  ACCOUNT_INFO: 'AccountInfo',
+  NOTIFICATIONS_SETTINGS: 'NotificationsSettings',
   
   // New screens
   CHECK_IN: 'CheckIn',
@@ -30,6 +32,10 @@ export const ROUTES = {
   TRANSACTION_LIST: 'TransactionList',
   LOAN_MANAGEMENT: 'LoanManagement',
   ADD_LOAN: 'AddLoan',
+  
+  // Journal screens
+  JOURNAL: 'Journal',
+  NEW_JOURNAL_ENTRY: 'NewJournalEntry',
 } as const;
 
 export default ROUTES; 

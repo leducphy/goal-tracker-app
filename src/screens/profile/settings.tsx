@@ -4,6 +4,7 @@ import React from 'react';
 import { ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ROUTES } from '../../constants/routes';
 import { useAppContext } from '../../contexts/AppContext';
 import useTranslation from '../../i18n';
 import useTheme from '../../styles/theme';
@@ -69,6 +70,11 @@ const SettingsScreen: React.FC = () => {
   const { language, setLanguage, isDarkMode, toggleTheme } = useAppContext();
   const navigation = useNavigation();
 
+  const handleNotificationsPress = () => {
+    // @ts-ignore
+    navigation.navigate(ROUTES.NOTIFICATIONS_SETTINGS);
+  };
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <ScrollView style={styles.content}>
@@ -132,6 +138,7 @@ const SettingsScreen: React.FC = () => {
             iconColor="#FF2D55"
             title={t('notifications')}
             rightElement={<Ionicons name="chevron-forward" size={20} color={theme.colors.textTertiary} />}
+            onPress={handleNotificationsPress}
             showBorder={false}
           />
         </SettingsSection>

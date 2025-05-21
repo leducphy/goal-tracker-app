@@ -16,6 +16,10 @@ import AchievementsScreen from './screens/goals/achievements';
 import CreateGoalScreen from './screens/goals/create';
 import GoalGroupsScreen from './screens/goals/groups';
 import LongTermGoalsScreen from './screens/goals/longterm';
+import AccountInfoScreen from './screens/profile/AccountInfo';
+import JournalScreen from './screens/profile/Journal';
+import NewJournalEntryScreen from './screens/profile/NewJournalEntry';
+import NotificationsSettingsScreen from './screens/profile/NotificationsSettings';
 import SettingsScreen from './screens/profile/settings';
 import StatsScreen from './screens/stats';
 
@@ -23,12 +27,16 @@ export type RootStackParamList = {
   [ROUTES.LOGIN]: undefined;
   [ROUTES.MAIN]: undefined;
   [ROUTES.SETTINGS]: undefined;
+  [ROUTES.ACCOUNT_INFO]: undefined;
+  [ROUTES.NOTIFICATIONS_SETTINGS]: undefined;
   [ROUTES.CHECK_IN]: undefined;
   [ROUTES.STATS]: undefined;
   [ROUTES.LONG_TERM_GOALS]: undefined;
   [ROUTES.GOAL_GROUPS]: undefined;
   [ROUTES.ACHIEVEMENTS]: undefined;
   [ROUTES.CREATE_GOAL]: undefined;
+  [ROUTES.JOURNAL]: undefined;
+  [ROUTES.NEW_JOURNAL_ENTRY]: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -58,12 +66,16 @@ const AppContent = () => {
               headerBackTitle: t('back'),
             }}  
           />
+          <Stack.Screen name={ROUTES.ACCOUNT_INFO} component={AccountInfoScreen} />
+          <Stack.Screen name={ROUTES.NOTIFICATIONS_SETTINGS} component={NotificationsSettingsScreen} />
           <Stack.Screen name={ROUTES.CHECK_IN} component={CheckInScreen} />
           <Stack.Screen name={ROUTES.STATS} component={StatsScreen} />
           <Stack.Screen name={ROUTES.LONG_TERM_GOALS} component={LongTermGoalsScreen} />
           <Stack.Screen name={ROUTES.GOAL_GROUPS} component={GoalGroupsScreen} />
           <Stack.Screen name={ROUTES.ACHIEVEMENTS} component={AchievementsScreen} />
           <Stack.Screen name={ROUTES.CREATE_GOAL} component={CreateGoalScreen} />
+          <Stack.Screen name={ROUTES.JOURNAL} component={JournalScreen} />
+          <Stack.Screen name={ROUTES.NEW_JOURNAL_ENTRY} component={NewJournalEntryScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
