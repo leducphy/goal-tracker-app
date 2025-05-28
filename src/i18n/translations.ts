@@ -21,6 +21,7 @@ export const translations = {
     noAccount: "Chưa có tài khoản?",
     hasAccount: "Đã có tài khoản?",
     orLoginWith: "Hoặc đăng nhập với",
+    orContinueWith: "Hoặc tiếp tục với",
     loginSuccess: "Đăng nhập thành công",
     registerSuccess: "Đăng ký thành công",
     accountCreatedSuccess: "Tài khoản của bạn đã được tạo thành công!",
@@ -28,6 +29,9 @@ export const translations = {
     passwordRecovery: "Khôi phục mật khẩu",
     loginWithSocial: "Đăng nhập với",
     featureInDevelopment: "Tính năng đang được phát triển",
+    signUp: "Đăng ký",
+    signIn: "Đăng nhập",
+    haveAccount: "Đã có tài khoản?",
 
     // Navigation Tabs
     overview: "Tổng quan",
@@ -78,8 +82,8 @@ export const translations = {
       "Bạn chưa có mục tiêu dài hạn nào. Hãy tạo mục tiêu mới để theo dõi tiến độ của bạn.",
 
     // Goal Groups Screen
-    exploreGroups: "Khám phá nhóm",
-    findGroups: "Tìm kiếm nhóm phù hợp với mục tiêu của bạn",
+    exploreGroups: "Khám phá",
+    findGroups: "Tìm nhóm mục tiêu",
     searchGroups: "Tìm kiếm nhóm...",
     members: "thành viên",
     activity: "Hoạt động:",
@@ -328,6 +332,7 @@ export const translations = {
     noAccount: "Don't have an account?",
     hasAccount: "Already have an account?",
     orLoginWith: "Or login with",
+    orContinueWith: "Or continue with",
     loginSuccess: "Login successful",
     registerSuccess: "Registration successful",
     accountCreatedSuccess: "Your account has been created successfully!",
@@ -335,6 +340,9 @@ export const translations = {
     passwordRecovery: "Password Recovery",
     loginWithSocial: "Login with",
     featureInDevelopment: "This feature is under development",
+    signUp: "Register",
+    signIn: "Login",
+    haveAccount: "Already have an account?",
 
     // Navigation Tabs
     overview: "Overview",
@@ -385,8 +393,8 @@ export const translations = {
       "You don't have any long-term goals yet. Create a new goal to track your progress.",
 
     // Goal Groups Screen
-    exploreGroups: "Explore Groups",
-    findGroups: "Find groups that match your goals",
+    exploreGroups: "Explore",
+    findGroups: "Find goal groups",
     searchGroups: "Search groups...",
     members: "members",
     activity: "Activity:",

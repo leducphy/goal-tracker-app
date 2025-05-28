@@ -70,9 +70,7 @@ const GoalsScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <View style={[styles.header, { backgroundColor: theme.colors.background }]}>
-        <Text style={[styles.headerTitle, { color: theme.colors.text }]}>Mục tiêu</Text>
-      </View>
+      
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Mục tiêu dài hạn */}

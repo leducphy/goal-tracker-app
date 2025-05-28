@@ -101,15 +101,6 @@ const FinanceScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <View style={[styles.header, { backgroundColor: theme.colors.card, borderBottomColor: theme.colors.border }]}>
-        <Text style={[styles.headerTitle, { color: theme.colors.text }]}>{t('finance')}</Text>
-        <TouchableOpacity 
-          style={[styles.addButton, { backgroundColor: theme.colors.primary }]}
-          onPress={handleNavigateToAddTransaction}
-        >
-          <Ionicons name="add" size={24} color="#FFF" />
-        </TouchableOpacity>
-      </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Overview Card */}

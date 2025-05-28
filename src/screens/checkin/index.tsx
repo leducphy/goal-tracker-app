@@ -1,22 +1,16 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { RootStackParamList } from '../../App';
+import { DailyGoal, DailyGoalsResponse, goalsService, GoalStatus } from '../../api';
 import SectionHeader from '../../components/common/SectionHeader';
-import GoalListItem, { GoalStatus } from '../../components/goals/GoalListItem';
+import GoalListItem from '../../components/goals/GoalListItem';
 import useTranslation from '../../i18n';
 import useTheme from '../../styles/theme';
-
-interface Goal {
-  id: string;
-  title: string;
-  category: string;
-  status: GoalStatus;
-}
 
 type CheckInScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -28,55 +22,83 @@ const CheckInScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
   const tabs = [t('goalsAll'), t('goals'), t('work')];
   
-  // Mock goals data
-  const [goals, setGoals] = useState<Goal[]>([
-    {
-      id: '1',
-      title: 'Đọc sách 30 phút',
-      category: 'Học tập',
-      status: 'completed',
-    },
-    {
-      id: '2',
-      title: 'Tập thể dục buổi sáng',
-      category: 'Thể chất',
-      status: 'completed',
-    },
-    {
-      id: '3',
-      title: 'Thiền 10 phút',
-      category: 'Tinh thần',
-      status: 'completed',
-    },
-    {
-      id: '4',
-      title: 'Học tiếng Anh',
-      category: 'Học tập',
-      status: 'inProgress',
-    },
-    {
-      id: '5',
-      title: 'Tiết kiệm 50.000đ',
-      category: 'Tài chính',
-      status: 'inProgress',
-    },
-  ]);
+  // API state management
+  const [goals, setGoals] = useState<DailyGoal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [goalsData, setGoalsData] = useState<DailyGoalsResponse | null>(null);
   
-  const handleToggleGoalStatus = (id: string) => {
-    setGoals(prevGoals => 
-      prevGoals.map(goal => 
-        goal.id === id 
-          ? { 
-              ...goal, 
-              status: goal.status === 'completed' ? 'inProgress' : 'completed' 
-            }
-          : goal
-      )
-    );
+  // Fetch daily goals on component mount
+  useEffect(() => {
+    fetchDailyGoals();
+  }, []);
+  
+  const fetchDailyGoals = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await goalsService.getDailyGoals();
+      setGoalsData(data);
+      setGoals(data.goals);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Lỗi khi tải dữ liệu');
+      console.error('Error fetching daily goals:', err);
+      // Show alert to user
+      Alert.alert(
+        'Lỗi',
+        'Không thể tải danh sách mục tiêu hàng ngày. Vui lòng thử lại.',
+        [
+          { text: 'Thử lại', onPress: fetchDailyGoals },
+          { text: 'Hủy', style: 'cancel' }
+        ]
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const handleToggleGoalStatus = async (id: string) => {
+    try {
+      const goal = goals.find(g => g.id === id);
+      if (!goal) return;
+      
+      // Toggle between completed and other statuses
+      const newStatus: GoalStatus = goal.status === 'completed' 
+        ? 'inProgress'
+        : 'completed';
+      
+      // Optimistic update
+      setGoals(prevGoals => 
+        prevGoals.map(g => 
+          g.id === id ? { ...g, status: newStatus } : g
+        )
+      );
+      
+      // Update on server
+      await goalsService.updateGoalStatus(id, newStatus);
+      
+      // Update goals data for progress calculation
+      if (goalsData) {
+        const updatedGoals = goals.map(g => g.id === id ? { ...g, status: newStatus } : g);
+        const completedGoals = updatedGoals.filter(g => g.status === 'completed');
+        setGoalsData({
+          ...goalsData,
+          goals: updatedGoals,
+          completedGoals: completedGoals.length,
+          completionPercentage: Math.round((completedGoals.length / updatedGoals.length) * 100)
+        });
+      }
+    } catch (err) {
+      console.error('Error updating goal status:', err);
+      // Revert optimistic update
+      fetchDailyGoals();
+      Alert.alert('Lỗi', 'Không thể cập nhật trạng thái mục tiêu. Vui lòng thử lại.');
+    }
   };
   
   const completedGoals = goals.filter(goal => goal.status === 'completed');
-  const completionPercentage = Math.round((completedGoals.length / goals.length) * 100);
+  const completionPercentage = goalsData?.completionPercentage || 
+    Math.round((completedGoals.length / Math.max(goals.length, 1)) * 100);
   
   const renderTabs = () => {
     return (
@@ -110,6 +132,64 @@ const CheckInScreen: React.FC = () => {
       </View>
     );
   };
+
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <Text style={[styles.loadingText, { color: theme.colors.textSecondary }]}>
+            Đang tải...
+          </Text>
+        </View>
+      );
+    }
+
+    if (error && goals.length === 0) {
+      return (
+        <View style={styles.errorContainer}>
+          <Text style={[styles.errorText, { color: theme.colors.error || '#ff4444' }]}>
+            {error}
+          </Text>
+          <TouchableOpacity 
+            style={[styles.retryButton, { backgroundColor: theme.colors.primary }]}
+            onPress={fetchDailyGoals}
+          >
+            <Text style={styles.retryButtonText}>Thử lại</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    if (goals.length === 0) {
+      return (
+        <View style={styles.emptyMessage}>
+          <Text style={[styles.emptyText, { color: theme.colors.textSecondary }]}>
+            {t('noGoalsToday')}
+          </Text>
+        </View>
+      );
+    }
+
+    return (
+      <>
+        <SectionHeader title={t('yourGoalsList')} />
+        <View style={styles.goalsList}>
+          {goals.map((goal) => (
+            <GoalListItem
+              key={goal.id}
+              title={goal.title}
+              category={goal.category}
+              deadline={goal.deadline}
+              status={goal.status as GoalStatus}
+              onPress={() => {}}
+              onComplete={() => handleToggleGoalStatus(goal.id)}
+            />
+          ))}
+        </View>
+      </>
+    );
+  };
   
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -124,7 +204,7 @@ const CheckInScreen: React.FC = () => {
           <View style={styles.headerTextContainer}>
             <Text style={[styles.headerTitle, { color: theme.colors.text }]}>{t('dailyCheckin')}</Text>
             <Text style={[styles.dateText, { color: theme.colors.textSecondary }]}>
-              {t('todayDate', { date: '22/5/2025' })}
+              {t('todayDate', { date: new Date().toLocaleDateString('vi-VN') })}
             </Text>
           </View>
         </View>
@@ -143,27 +223,8 @@ const CheckInScreen: React.FC = () => {
         </View>
       
         {renderTabs()}
-      
-        <View style={styles.emptyMessage}>
-          <Text style={[styles.emptyText, { color: theme.colors.textSecondary }]}>
-            {t('noGoalsToday')}
-          </Text>
-        </View>
         
-        <SectionHeader title={t('yourGoalsList')} />
-        
-        <View style={styles.goalsList}>
-          {goals.map((goal) => (
-            <GoalListItem
-              key={goal.id}
-              title={goal.title}
-              category={goal.category}
-              status={goal.status}
-              onPress={() => {}}
-              onComplete={() => handleToggleGoalStatus(goal.id)}
-            />
-          ))}
-        </View>
+        {renderContent()}
       </View>
     </SafeAreaView>
   );
@@ -243,6 +304,38 @@ const styles = StyleSheet.create({
   },
   goalsList: {
     marginTop: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 50,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 14,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 50,
+  },
+  errorText: {
+    marginBottom: 20,
+    fontSize: 14,
+    textAlign: 'center',
+    paddingHorizontal: 20,
+  },
+  retryButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#fff',
   },
 });
 

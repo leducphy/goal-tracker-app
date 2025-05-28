@@ -212,7 +212,7 @@ const OverviewScreen: React.FC = () => {
   
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <View style={[styles.header, { backgroundColor: theme.colors.card, borderBottomColor: theme.colors.border }]}>
+      {/* <View style={[styles.header, { backgroundColor: theme.colors.card, borderBottomColor: theme.colors.border }]}>
         <View style={styles.headerContent}>
           <View style={styles.headerTextContainer}>
             <Text style={[styles.headerTitle, { color: theme.colors.text }]}>Xin chào, Minh!</Text>
@@ -220,17 +220,29 @@ const OverviewScreen: React.FC = () => {
               Hôm nay là một ngày tuyệt vời để tiến bộ
             </Text>
           </View>
-          <TouchableOpacity 
-            style={[styles.checkInButton, { backgroundColor: theme.colors.primary }]}
-            onPress={handleNavigateToCheckIn}
-          >
-            <Ionicons name="today-outline" size={16} color="white" style={styles.checkInIcon} />
-            <Text style={styles.checkInButtonText}>Check in</Text>
-          </TouchableOpacity>
         </View>
-      </View>
+      </View> */}
       
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Check-in Card */}
+        <TouchableOpacity 
+          style={[styles.checkInCard, { backgroundColor: theme.colors.card }]}
+          onPress={handleNavigateToCheckIn}
+        >
+          <View style={styles.checkInCardContent}>
+            <View style={[styles.checkInIconContainer, { backgroundColor: theme.colors.primary }]}>
+              <Ionicons name="today-outline" size={24} color="white" />
+            </View>
+            <View style={styles.checkInTextContainer}>
+              <Text style={[styles.checkInCardTitle, { color: theme.colors.text }]}>Check-in hàng ngày</Text>
+              <Text style={[styles.checkInCardSubtitle, { color: theme.colors.textSecondary }]}>
+                Cập nhật tiến độ mục tiêu của bạn
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={theme.colors.textSecondary} />
+          </View>
+        </TouchableOpacity>
+
         {/* Today's Progress */}
         <SectionHeader
           title="Tiến độ mục tiêu hôm nay"
@@ -423,14 +435,12 @@ const styles = StyleSheet.create({
   },
   headerContent: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
   },
   headerTextContainer: {
     flex: 1,
-    marginRight: 16,
-    maxWidth: '65%',
+    maxWidth: '100%',
   },
   headerTitle: {
     fontSize: 22,
@@ -441,27 +451,38 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 18,
   },
-  checkInButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+  checkInCard: {
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 24,
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 1,
-    minWidth: 90,
-    alignItems: 'center',
+    shadowRadius: 4,
+  },
+  checkInCardContent: {
     flexDirection: 'row',
+    alignItems: 'center',
+  },
+  checkInIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 12,
   },
-  checkInIcon: {
-    marginRight: 5,
+  checkInTextContainer: {
+    flex: 1,
   },
-  checkInButtonText: {
-    color: 'white',
+  checkInCardTitle: {
+    fontSize: 16,
     fontWeight: '600',
-    fontSize: 14,
+    marginBottom: 4,
+  },
+  checkInCardSubtitle: {
+    fontSize: 12,
   },
   content: {
     flex: 1,

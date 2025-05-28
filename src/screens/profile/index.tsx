@@ -2,11 +2,12 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React from 'react';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { RootStackParamList } from '../../App';
 import { ROUTES } from '../../constants/routes';
+import { useAuth } from '../../contexts/AuthContext';
 import useTranslation from '../../i18n';
 import useTheme from '../../styles/theme';
 
@@ -15,17 +16,12 @@ type IconName = keyof typeof Ionicons.glyphMap;
 
 const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
+  const { user, logout } = useAuth();
   const { t } = useTranslation();
   const theme = useTheme();
   
-  // Mock user data
-  const user = {
-    name: 'Nguyen Van A',
-    email: 'nguyenvana@example.com',
-    avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-    joinDate: '01/2023',
-    completedGoals: 15,
-  };
+  // Default avatar if user doesn't have one
+  const defaultAvatar = 'https://via.placeholder.com/80x80/007AFF/FFFFFF?text=GT';
 
   const menuItems = [
     {
@@ -73,38 +69,66 @@ const ProfileScreen: React.FC = () => {
   ];
 
   const handleLogout = () => {
-    // Navigate back to login screen
-    navigation.navigate(ROUTES.LOGIN);
+    Alert.alert(
+      'Đăng xuất',
+      'Bạn có chắc chắn muốn đăng xuất không?',
+      [
+        {
+          text: 'Hủy',
+          style: 'cancel',
+        },
+        {
+          text: 'Đăng xuất',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await logout();
+              // Navigation will be handled automatically by AuthContext
+            } catch (error) {
+              console.error('Logout error:', error);
+              Alert.alert('Lỗi', 'Không thể đăng xuất. Vui lòng thử lại.');
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <View style={[styles.header, { backgroundColor: theme.colors.card, borderBottomColor: theme.colors.border }]}>
+      {/* <View style={[styles.header, { backgroundColor: theme.colors.card, borderBottomColor: theme.colors.border }]}>
         <Text style={[styles.headerTitle, { color: theme.colors.text }]}>{t('profile')}</Text>
         <TouchableOpacity onPress={() => navigation.navigate(ROUTES.SETTINGS)}>
           <Ionicons name="settings-outline" size={24} color={theme.colors.text} />
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Profile Card */}
         <View style={[styles.profileCard, { backgroundColor: theme.colors.card }]}>
           <Image 
-            source={{ uri: user.avatar }} 
+            source={{ uri: user?.avatar || defaultAvatar }} 
             style={styles.avatar} 
+            defaultSource={{ uri: defaultAvatar }}
           />
           
           <View style={styles.profileInfo}>
-            <Text style={[styles.name, { color: theme.colors.text }]}>{user.name}</Text>
-            <Text style={[styles.email, { color: theme.colors.textSecondary }]}>{user.email}</Text>
+            <Text style={[styles.name, { color: theme.colors.text }]}>
+              {user?.full_name}
+            </Text>
+            <Text style={[styles.email, { color: theme.colors.textSecondary }]}>
+              {user?.email}
+            </Text>
             <View style={styles.statsContainer}>
               <View style={styles.statItem}>
-                <Text style={[styles.statValue, { color: theme.colors.primary }]}>{user.completedGoals}</Text>
+                <Text style={[styles.statValue, { color: theme.colors.primary }]}>0</Text>
                 <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>{t('completedGoals')}</Text>
               </View>
               <View style={[styles.statDivider, { backgroundColor: theme.colors.divider }]} />
               <View style={styles.statItem}>
-                <Text style={[styles.statValue, { color: theme.colors.primary }]}>{user.joinDate}</Text>
+                <Text style={[styles.statValue, { color: theme.colors.primary }]}>
+                  {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('vi-VN', { month: '2-digit', year: 'numeric' }) : 'N/A'}
+                </Text>
                 <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>{t('joinedSince')}</Text>
               </View>
             </View>

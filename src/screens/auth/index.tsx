@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   ColorValue,
   Keyboard,
@@ -19,18 +20,20 @@ import {
 } from 'react-native';
 
 import { RootStackParamList } from '../../App';
-import { ROUTES } from '../../constants/routes';
 import { useAppContext } from '../../contexts/AppContext';
+import { useAuth } from '../../contexts/AuthContext';
 import useTranslation from '../../i18n';
 import useTheme from '../../styles/theme';
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
 const LoginScreen: React.FC = () => {
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const [email, setEmail] = useState<string>('leducphi1952002@gmail.com'); // Pre-filled for testing
+  const [password, setPassword] = useState<string>('string'); // Pre-filled for testing
   const [isLogin, setIsLogin] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigation = useNavigation<LoginScreenNavigationProp>();
+  const { login } = useAuth();
   const { t } = useTranslation();
   const theme = useTheme();
   const { language, setLanguage } = useAppContext();
@@ -46,12 +49,27 @@ const LoginScreen: React.FC = () => {
     }
   };
 
-  const handleAuth = () => {
-    // In a real app, you would verify credentials here
+  const handleAuth = async () => {
+    if (!email || !password) {
+      Alert.alert('Lỗi', 'Vui lòng nhập email và mật khẩu');
+      return;
+    }
+
     if (isLogin) {
-      navigation.navigate(ROUTES.MAIN);
-      // Could show a success message
-      // Alert.alert(t('loginSuccess'));
+      setIsLoading(true);
+      try {
+        await login({ email, password });
+        // Navigation will be handled automatically by AuthContext
+      } catch (error) {
+        console.error('Login error:', error);
+        Alert.alert(
+          'Đăng nhập thất bại',
+          error instanceof Error ? error.message : 'Có lỗi xảy ra. Vui lòng thử lại.',
+          [{ text: 'OK' }]
+        );
+      } finally {
+        setIsLoading(false);
+      }
     } else {
       // Handle registration
       Alert.alert(
@@ -114,6 +132,7 @@ const LoginScreen: React.FC = () => {
                 ]} 
                 onPress={() => setLanguage('vi')}
                 activeOpacity={0.7}
+                disabled={isLoading}
               >
                 <Text style={styles.flagEmoji}>{VI_FLAG}</Text>
                 <Text 
@@ -133,6 +152,7 @@ const LoginScreen: React.FC = () => {
                 ]} 
                 onPress={() => setLanguage('en')}
                 activeOpacity={0.7}
+                disabled={isLoading}
               >
                 <Text style={styles.flagEmoji}>{EN_FLAG}</Text>
                 <Text 
@@ -173,6 +193,7 @@ const LoginScreen: React.FC = () => {
                   onChangeText={setEmail}
                   keyboardType="email-address"
                   autoCapitalize="none"
+                  editable={!isLoading}
                 />
               </View>
             </View>
@@ -191,6 +212,7 @@ const LoginScreen: React.FC = () => {
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry
+                  editable={!isLoading}
                 />
               </View>
             </View>
@@ -205,70 +227,109 @@ const LoginScreen: React.FC = () => {
                   <Ionicons name="lock-closed-outline" size={20} color={theme.colors.textSecondary} />
                   <TextInput
                     style={[styles.input, { color: theme.colors.text }]}
-                    placeholder={t('confirmPassword')}
+                    placeholder="Nhập lại mật khẩu"
                     placeholderTextColor={theme.colors.textSecondary}
                     secureTextEntry
+                    editable={!isLoading}
                   />
                 </View>
               </View>
             )}
             
+            <TouchableOpacity
+              style={[
+                styles.authButton, 
+                { 
+                  backgroundColor: theme.colors.primary,
+                  opacity: isLoading ? 0.7 : 1
+                }
+              ]}
+              onPress={handleAuth}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                  <Text style={[styles.authButtonText, { marginLeft: 10 }]}>
+                    Đang đăng nhập...
+                  </Text>
+                </View>
+              ) : (
+                <Text style={styles.authButtonText}>
+                  {isLogin ? t('login') : t('register')}
+                </Text>
+              )}
+            </TouchableOpacity>
+            
             {isLogin && (
-              <TouchableOpacity style={styles.forgotPasswordContainer} onPress={handleForgotPassword}>
+              <TouchableOpacity 
+                onPress={handleForgotPassword}
+                disabled={isLoading}
+                style={{ opacity: isLoading ? 0.5 : 1 }}
+              >
                 <Text style={[styles.forgotPasswordText, { color: theme.colors.primary }]}>
                   {t('forgotPassword')}
                 </Text>
               </TouchableOpacity>
             )}
-            
-            <TouchableOpacity 
-              style={[styles.authButton, { backgroundColor: theme.colors.primary }]} 
-              onPress={handleAuth}
+          </View>
+          
+          <View style={styles.dividerContainer}>
+            <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
+            <Text style={[styles.dividerText, { color: theme.colors.textSecondary }]}>
+              {t('orContinueWith')}
+            </Text>
+            <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
+          </View>
+          
+          <View style={styles.socialButtonsContainer}>
+            <TouchableOpacity
+              style={[styles.socialButton, { 
+                backgroundColor: theme.colors.card,
+                borderColor: theme.colors.border
+              }]}
+              onPress={() => handleSocialLogin('Google')}
+              disabled={isLoading}
             >
-              <Text style={styles.authButtonText}>{isLogin ? t('login') : t('register')}</Text>
+              <Ionicons name="logo-google" size={20} color="#DB4437" />
             </TouchableOpacity>
             
-            <View style={styles.switchModeContainer}>
-              <Text style={[styles.switchModeText, { color: theme.colors.textSecondary }]}>
-                {isLogin ? t('noAccount') : t('hasAccount')}
-              </Text>
-              <TouchableOpacity onPress={() => setIsLogin(!isLogin)}>
-                <Text style={[styles.switchModeButton, { color: theme.colors.primary }]}>
-                  {isLogin ? t('register') : t('login')}
-                </Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              style={[styles.socialButton, { 
+                backgroundColor: theme.colors.card,
+                borderColor: theme.colors.border
+              }]}
+              onPress={() => handleSocialLogin('Facebook')}
+              disabled={isLoading}
+            >
+              <Ionicons name="logo-facebook" size={20} color="#4267B2" />
+            </TouchableOpacity>
             
-            <View style={styles.dividerContainer}>
-              <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
-              <Text style={[styles.dividerText, { color: theme.colors.textSecondary }]}>
-                {t('orLoginWith')}
+            <TouchableOpacity
+              style={[styles.socialButton, { 
+                backgroundColor: theme.colors.card,
+                borderColor: theme.colors.border
+              }]}
+              onPress={() => handleSocialLogin('Apple')}
+              disabled={isLoading}
+            >
+              <Ionicons name="logo-apple" size={20} color={theme.colors.text} />
+            </TouchableOpacity>
+          </View>
+          
+          <View style={styles.switchModeContainer}>
+            <Text style={[styles.switchModeText, { color: theme.colors.textSecondary }]}>
+              {isLogin ? t('noAccount') : t('haveAccount')}
+            </Text>
+            <TouchableOpacity 
+              onPress={() => setIsLogin(!isLogin)}
+              disabled={isLoading}
+              style={{ opacity: isLoading ? 0.5 : 1 }}
+            >
+              <Text style={[styles.switchModeLink, { color: theme.colors.primary }]}>
+                {isLogin ? t('signUp') : t('signIn')}
               </Text>
-              <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
-            </View>
-            
-            <View style={styles.socialLoginContainer}>
-              <TouchableOpacity 
-                style={[styles.socialButton, { backgroundColor: '#4285F4' }]}
-                onPress={() => handleSocialLogin('Google')}
-              >
-                <Ionicons name="logo-google" size={20} color="white" />
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.socialButton, { backgroundColor: '#3b5998' }]}
-                onPress={() => handleSocialLogin('Facebook')}
-              >
-                <Ionicons name="logo-facebook" size={20} color="white" />
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.socialButton, { backgroundColor: '#000000' }]}
-                onPress={() => handleSocialLogin('Apple')}
-              >
-                <Ionicons name="logo-apple" size={20} color="white" />
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
       </LinearGradient>
@@ -283,168 +344,147 @@ const styles = StyleSheet.create({
   innerContainer: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingTop: Platform.OS === 'ios' ? 60 : 48,
-    justifyContent: 'center',
+    paddingTop: 60,
+    paddingBottom: 30,
   },
   languageToggleContainer: {
-    position: 'absolute',
-    top: Platform.OS === 'ios' ? 50 : 30,
-    right: 24,
-    zIndex: 10,
+    alignItems: 'flex-end',
+    marginBottom: 20,
   },
   languageSwitch: {
     flexDirection: 'row',
-    borderRadius: 24,
+    borderRadius: 20,
     borderWidth: 1,
     overflow: 'hidden',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
   },
   languageOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
   },
   activeLanguage: {
-    borderRadius: 20,
+    borderRadius: 18,
+    margin: 2,
   },
   flagEmoji: {
     fontSize: 16,
     marginRight: 4,
   },
   languageText: {
-    fontSize: 14,
+    fontSize: 12,
+    fontWeight: '500',
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 40,
   },
   logoPlaceholder: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
+    marginBottom: 16,
   },
   logoText: {
-    fontSize: 36,
+    color: '#FFFFFF',
+    fontSize: 32,
     fontWeight: 'bold',
-    color: 'white',
   },
   appTitle: {
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: 'bold',
-    marginTop: 16,
+    marginBottom: 8,
   },
   appSubtitle: {
-    fontSize: 15,
-    marginTop: 6,
+    fontSize: 16,
+    textAlign: 'center',
   },
   formContainer: {
-    width: '100%',
-    paddingHorizontal: 4,
+    marginBottom: 30,
   },
   inputContainer: {
-    marginBottom: 18,
+    marginBottom: 16,
   },
   label: {
-    fontSize: 15,
-    marginBottom: 6,
+    fontSize: 14,
     fontWeight: '500',
-    marginLeft: 4,
+    marginBottom: 8,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderRadius: 12,
-    paddingHorizontal: 16,
-    height: 52,
+    paddingHorizontal: 12,
+    height: 50,
   },
   input: {
     flex: 1,
-    marginLeft: 12,
+    marginLeft: 10,
     fontSize: 16,
-  },
-  forgotPasswordContainer: {
-    alignSelf: 'flex-end',
-    marginBottom: 22,
-    marginTop: -8,
-    paddingHorizontal: 4,
-  },
-  forgotPasswordText: {
-    fontSize: 14,
-    fontWeight: '500',
   },
   authButton: {
     borderRadius: 12,
-    paddingVertical: 15,
+    paddingVertical: 16,
     alignItems: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    marginTop: 8,
+    marginBottom: 16,
   },
   authButtonText: {
-    color: '#fff',
-    fontSize: 17,
-    fontWeight: 'bold',
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
-  switchModeContainer: {
+  loadingContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 18,
-    marginBottom: 18,
+    alignItems: 'center',
   },
-  switchModeText: {
-    fontSize: 15,
-  },
-  switchModeButton: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    marginLeft: 5,
+  forgotPasswordText: {
+    fontSize: 14,
+    textAlign: 'center',
+    fontWeight: '500',
   },
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 16,
+    marginBottom: 24,
   },
   divider: {
     flex: 1,
     height: 1,
   },
   dividerText: {
-    marginHorizontal: 12,
+    marginHorizontal: 16,
     fontSize: 14,
   },
-  socialLoginContainer: {
+  socialButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 12,
+    gap: 16,
+    marginBottom: 24,
   },
   socialButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    borderWidth: 1,
+  },
+  switchModeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  switchModeText: {
+    fontSize: 14,
+    marginRight: 4,
+  },
+  switchModeLink: {
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
 

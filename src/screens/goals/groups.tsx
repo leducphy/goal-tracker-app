@@ -1,8 +1,8 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useState } from 'react';
-import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { Animated, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { RootStackParamList } from '../../App';
@@ -27,6 +27,11 @@ const GoalGroupsScreen: React.FC = () => {
   const navigation = useNavigation<GoalGroupsScreenNavigationProp>();
   const [activeTab, setActiveTab] = useState(0);
   const [searchText, setSearchText] = useState('');
+  
+  // Animation for search field
+  const searchHeight = useRef(new Animated.Value(1)).current;
+  const lastScrollY = useRef(0);
+  const scrollDirection = useRef('up');
   
   const tabs = [
     { id: 0, name: t('explore') },
@@ -132,6 +137,41 @@ const GoalGroupsScreen: React.FC = () => {
     }
   };
 
+  const handleScroll = (event: any) => {
+    const currentScrollY = event.nativeEvent.contentOffset.y;
+    const scrollDelta = Math.abs(currentScrollY - lastScrollY.current);
+    
+    // Lower threshold to trigger more easily for debugging
+    if (scrollDelta < 5) {
+      lastScrollY.current = currentScrollY;
+      return;
+    }
+    
+    const direction = currentScrollY > lastScrollY.current ? 'down' : 'up';
+    
+    if (direction !== scrollDirection.current) {
+      scrollDirection.current = direction;
+      
+      if (direction === 'down' && currentScrollY > 20) {
+        // Hide search field when scrolling down
+        Animated.timing(searchHeight, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: false,
+        }).start();
+      } else if (direction === 'up' || currentScrollY <= 10) {
+        // Show search field when scrolling up or near top
+        Animated.timing(searchHeight, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: false,
+        }).start();
+      }
+    }
+    
+    lastScrollY.current = currentScrollY;
+  };
+
   const renderGroupItem = ({ item }: { item: GoalGroup }) => (
     <View style={[styles.groupCard, { backgroundColor: theme.colors.card }]}>
       <View style={styles.groupCardHeader}>
@@ -187,7 +227,7 @@ const GoalGroupsScreen: React.FC = () => {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={[styles.header, { backgroundColor: theme.colors.card, borderBottomColor: theme.colors.border }]}>
-        <View style={styles.headerContent}>
+        <View style={styles.headerTopRow}>
           <TouchableOpacity 
             style={styles.backButton}
             onPress={() => navigation.goBack()}
@@ -197,36 +237,48 @@ const GoalGroupsScreen: React.FC = () => {
           <View style={styles.headerTextContainer}>
             <Text style={[styles.headerTitle, { color: theme.colors.text }]}>{t('goalGroups')}</Text>
             <Text style={[styles.headerSubtitle, { color: theme.colors.textSecondary }]}>
-              {t('participateGroups')}
+              {t('exploreGroups')} • {t('findGroups')}
             </Text>
           </View>
           <TouchableOpacity 
-            style={[styles.createButton, { backgroundColor: theme.colors.background }]}
+            style={[styles.createButton, { backgroundColor: theme.colors.primary }]}
           >
-            <Ionicons name="add-circle" size={20} color={theme.colors.primary} />
+            <Ionicons name="add" size={20} color="white" />
           </TouchableOpacity>
         </View>
+        
+        <Animated.View 
+          style={[
+            styles.searchInputContainer, 
+            { 
+              backgroundColor: theme.colors.background,
+              height: searchHeight.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 48],
+              }),
+              opacity: searchHeight,
+              marginBottom: searchHeight.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 8],
+              }),
+              transform: [{
+                scaleY: searchHeight,
+              }],
+            }
+          ]}
+        >
+          <Ionicons name="search" size={20} color={theme.colors.textTertiary} />
+          <TextInput
+            style={[styles.searchInput, { color: theme.colors.text }]}
+            placeholder={t('searchGroups')}
+            placeholderTextColor={theme.colors.textTertiary}
+            value={searchText}
+            onChangeText={setSearchText}
+          />
+        </Animated.View>
       </View>
       
       <View style={styles.content}>
-        <View style={[styles.searchContainer, { backgroundColor: theme.colors.card }]}>
-          <Text style={[styles.searchTitle, { color: theme.colors.text }]}>{t('exploreGroups')}</Text>
-          <Text style={[styles.searchSubtitle, { color: theme.colors.textSecondary }]}>
-            {t('findGroups')}
-          </Text>
-          
-          <View style={[styles.searchInputContainer, { backgroundColor: theme.colors.background }]}>
-            <Ionicons name="search" size={20} color={theme.colors.textTertiary} />
-            <TextInput
-              style={[styles.searchInput, { color: theme.colors.text }]}
-              placeholder={t('searchGroups')}
-              placeholderTextColor={theme.colors.textTertiary}
-              value={searchText}
-              onChangeText={setSearchText}
-            />
-          </View>
-        </View>
-        
         <View style={styles.tabContainer}>
           {tabs.map(tab => (
             <TouchableOpacity
@@ -255,6 +307,10 @@ const GoalGroupsScreen: React.FC = () => {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.groupsList}
           showsVerticalScrollIndicator={false}
+          onScroll={handleScroll}
+          scrollEventThrottle={32}
+          bounces={false}
+          removeClippedSubviews={true}
         />
       </View>
     </SafeAreaView>
@@ -267,12 +323,13 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingVertical: 20,
     borderBottomWidth: 1,
   },
-  headerContent: {
+  headerTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 20,
   },
   backButton: {
     width: 40,
@@ -287,43 +344,37 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 14,
+    lineHeight: 18,
   },
   createButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   content: {
     flex: 1,
   },
-  searchContainer: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
-  },
-  searchTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  searchSubtitle: {
-    fontSize: 14,
-    marginBottom: 16,
-  },
   searchInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    height: 44,
-    borderRadius: 8,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.08)',
+    overflow: 'hidden',
   },
   searchInput: {
     flex: 1,
@@ -334,9 +385,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0, 0, 0, 0.05)',
+    paddingTop: 0,
   },
   tab: {
-    paddingVertical: 14,
+    paddingVertical: 16,
     paddingHorizontal: 24,
     marginRight: 8,
   },
@@ -345,7 +397,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   groupsList: {
-    padding: 16,
+    padding: 20,
   },
   groupCard: {
     borderRadius: 12,
