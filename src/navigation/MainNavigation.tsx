@@ -6,9 +6,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ROUTES } from '../constants/routes';
 import useTranslation from '../i18n';
-import GoalsScreen from '../screens/goals';
+import GoalsScreen from '../screens/goals/Index';
 import OverviewScreen from '../screens/overview';
-import ProfileScreen from '../screens/profile';
+import ProfileScreen from '../screens/profile/Index';
 import useTheme from '../styles/theme';
 import FinanceNavigation from './FinanceNavigation';
 

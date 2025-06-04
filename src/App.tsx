@@ -9,20 +9,22 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ROUTES } from './constants/routes';
 import { AppProvider, useAppContext } from './contexts/AppContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import ToastProvider from './components/ToastProvider';
 import useTranslation from './i18n';
 import MainNavigation from './navigation/MainNavigation';
-import LoginScreen from './screens/auth';
-import CheckInScreen from './screens/checkin';
-import AchievementsScreen from './screens/goals/achievements';
-import CreateGoalScreen from './screens/goals/create';
-import GoalGroupsScreen from './screens/goals/groups';
-import LongTermGoalsScreen from './screens/goals/longterm';
+import LoginScreen from './screens/auth/Index';
+import CheckInScreen from './screens/checkin/Index';
+import AchievementsScreen from './screens/goals/Achievements';
+import CreateGoalScreen from './screens/goals/Create';
+import GoalGroupsScreen from './screens/goals/Groups';
+import LongTermGoalsScreen from './screens/goals/LongTerm';
+import LongTermGoalDetailScreen from './screens/goals/LongTermGoalDetail';
 import AccountInfoScreen from './screens/profile/AccountInfo';
 import JournalScreen from './screens/profile/Journal';
 import NewJournalEntryScreen from './screens/profile/NewJournalEntry';
 import NotificationsSettingsScreen from './screens/profile/NotificationsSettings';
-import SettingsScreen from './screens/profile/settings';
-import StatsScreen from './screens/stats';
+import SettingsScreen from './screens/profile/Settings';
+import StatsScreen from './screens/stats/Index';
 import useTheme from './styles/theme';
 
 export type RootStackParamList = {
@@ -34,6 +36,7 @@ export type RootStackParamList = {
   [ROUTES.CHECK_IN]: undefined;
   [ROUTES.STATS]: undefined;
   [ROUTES.LONG_TERM_GOALS]: undefined;
+  [ROUTES.LONG_TERM_GOAL_DETAIL]: { goalId: number; goalName?: string };
   [ROUTES.GOAL_GROUPS]: undefined;
   [ROUTES.ACHIEVEMENTS]: undefined;
   [ROUTES.CREATE_GOAL]: undefined;
@@ -95,6 +98,7 @@ const AppContent = () => {
               <Stack.Screen name={ROUTES.CHECK_IN} component={CheckInScreen} />
               <Stack.Screen name={ROUTES.STATS} component={StatsScreen} />
               <Stack.Screen name={ROUTES.LONG_TERM_GOALS} component={LongTermGoalsScreen} />
+              <Stack.Screen name={ROUTES.LONG_TERM_GOAL_DETAIL} component={LongTermGoalDetailScreen} />
               <Stack.Screen name={ROUTES.GOAL_GROUPS} component={GoalGroupsScreen} />
               <Stack.Screen name={ROUTES.ACHIEVEMENTS} component={AchievementsScreen} />
               <Stack.Screen name={ROUTES.CREATE_GOAL} component={CreateGoalScreen} />
@@ -113,7 +117,9 @@ export default function App() {
     <GestureHandlerRootView style={styles.container}>
       <AppProvider>
         <AuthProvider>
-          <AppContent />
+          <ToastProvider>
+            <AppContent />
+          </ToastProvider>
         </AuthProvider>
       </AppProvider>
     </GestureHandlerRootView>

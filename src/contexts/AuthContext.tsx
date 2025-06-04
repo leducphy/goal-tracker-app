@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { authService, LoginRequest } from '../api/services/authService';
 import { UserData } from '../utils/tokenStorage';
+import { userService } from '../utils/userService';
 
 interface AuthContextType {
   user: UserData | null;
@@ -8,6 +9,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (credentials: LoginRequest) => Promise<void>;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,18 +39,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const checkAuthStatus = async () => {
     try {
       setIsLoading(true);
-      const authenticated = await authService.isAuthenticated();
       
-      if (authenticated) {
-        const userData = await authService.getCurrentUser();
+      // First check if user is logged in via userService
+      const isLoggedIn = await userService.isLoggedIn();
+      
+      if (isLoggedIn) {
+        const userData = await userService.getCurrentUser();
         setUser(userData);
         setIsAuthenticated(true);
+        console.log('✅ User loaded from storage:', userData);
       } else {
-        setUser(null);
-        setIsAuthenticated(false);
+        // Fallback to authService for backward compatibility
+        const authenticated = await authService.isAuthenticated();
+        
+        if (authenticated) {
+          const userResponse = await authService.getCurrentUser();
+          setUser(userResponse.data);
+          setIsAuthenticated(true);
+          console.log('✅ User loaded from authService:', userResponse.data);
+        } else {
+          setUser(null);
+          setIsAuthenticated(false);
+          console.log('❌ No authenticated user found');
+        }
       }
     } catch (error) {
-      console.error('Error checking auth status:', error);
+      console.error('❌ Error checking auth status:', error);
       setUser(null);
       setIsAuthenticated(false);
     } finally {
@@ -56,10 +72,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const refreshUser = async () => {
+    try {
+      const userData = await userService.getCurrentUser();
+      if (userData) {
+        setUser(userData);
+        console.log('✅ User data refreshed:', userData);
+      }
+    } catch (error) {
+      console.error('❌ Error refreshing user data:', error);
+    }
+  };
+
   const login = async (credentials: LoginRequest) => {
     try {
       const response = await authService.login(credentials);
-      setUser(response.user);
+      setUser(response.data.user);
       setIsAuthenticated(true);
     } catch (error) {
       console.error('Login failed:', error);
@@ -69,9 +97,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     try {
+      await userService.clearUserData();
       await authService.logout();
       setUser(null);
       setIsAuthenticated(false);
+      console.log('✅ User logged out successfully');
     } catch (error) {
       console.error('Logout failed:', error);
       throw error;
@@ -84,6 +114,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isLoading,
     login,
     logout,
+    refreshUser,
   };
 
   return (

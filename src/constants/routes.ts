@@ -22,6 +22,7 @@ export const ROUTES = {
 
   // Goal screens
   LONG_TERM_GOALS: 'LongTermGoals',
+  LONG_TERM_GOAL_DETAIL: 'LongTermGoalDetail',
   GOAL_GROUPS: 'GoalGroups',
   ACHIEVEMENTS: 'Achievements',
   CREATE_GOAL: 'CreateGoal',

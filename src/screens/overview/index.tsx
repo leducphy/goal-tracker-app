@@ -289,6 +289,7 @@ const OverviewScreen: React.FC = () => {
                 if (goal.route === ROUTES.MAIN) {
                   navigateToMainTab(goal.categoryType === 'finance' ? 'Finance' : 'Goals');
                 } else {
+                  // @ts-ignore
                   navigation.navigate(goal.route as keyof RootStackParamList);
                 }
               }}
@@ -324,6 +325,7 @@ const OverviewScreen: React.FC = () => {
                 if (activity.route === ROUTES.MAIN) {
                   navigateToMainTab(activity.type === 'saved' ? 'Finance' : 'Goals');
                 } else {
+                  // @ts-ignore
                   navigation.navigate(activity.route as keyof RootStackParamList);
                 }
               }}

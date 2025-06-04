@@ -1,8 +1,8 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React from 'react';
-import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { RootStackParamList } from '../../App';
@@ -10,18 +10,72 @@ import { ROUTES } from '../../constants/routes';
 import { useAuth } from '../../contexts/AuthContext';
 import useTranslation from '../../i18n';
 import useTheme from '../../styles/theme';
+import { userService } from '../../utils/userService';
 
 type ProfileScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 type IconName = keyof typeof Ionicons.glyphMap;
 
 const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const { t } = useTranslation();
   const theme = useTheme();
+  const [refreshing, setRefreshing] = useState(false);
+  const [userStats, setUserStats] = useState({
+    completedGoals: 0,
+    totalGoals: 0,
+    currentStreak: 0,
+    joinedDate: new Date().toISOString(),
+  });
   
   // Default avatar if user doesn't have one
   const defaultAvatar = 'https://via.placeholder.com/80x80/007AFF/FFFFFF?text=GT';
+
+  useEffect(() => {
+    loadUserStats();
+  }, [user]);
+
+  const loadUserStats = async () => {
+    try {
+      const stats = await userService.getUserStats();
+      setUserStats(stats);
+    } catch (error) {
+      console.error('❌ Error loading user stats:', error);
+    }
+  };
+
+  const handleRefresh = async () => {
+    try {
+      setRefreshing(true);
+      await refreshUser();
+      await loadUserStats();
+    } catch (error) {
+      console.error('❌ Error refreshing profile:', error);
+      Alert.alert(t('errorTitle'), t('profileRefreshError'));
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const formatJoinDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleDateString('vi-VN', { 
+        month: '2-digit', 
+        year: 'numeric' 
+      });
+    } catch (error) {
+      return 'N/A';
+    }
+  };
+
+  const getRoleDisplayName = (role: string) => {
+    switch (role?.toUpperCase()) {
+      case 'ADMIN': return t('userRoleAdmin');
+      case 'USER': return t('userRoleUser');
+      case 'MODERATOR': return t('userRoleModerator');
+      default: return role || t('userRoleUser');
+    }
+  };
 
   const menuItems = [
     {
@@ -70,15 +124,15 @@ const ProfileScreen: React.FC = () => {
 
   const handleLogout = () => {
     Alert.alert(
-      'Đăng xuất',
-      'Bạn có chắc chắn muốn đăng xuất không?',
+      t('logoutConfirmTitle'),
+      t('logoutConfirmMessage'),
       [
         {
-          text: 'Hủy',
+          text: t('cancel'),
           style: 'cancel',
         },
         {
-          text: 'Đăng xuất',
+          text: t('logout'),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -86,7 +140,7 @@ const ProfileScreen: React.FC = () => {
               // Navigation will be handled automatically by AuthContext
             } catch (error) {
               console.error('Logout error:', error);
-              Alert.alert('Lỗi', 'Không thể đăng xuất. Vui lòng thử lại.');
+              Alert.alert(t('errorTitle'), t('logoutError'));
             }
           },
         },
@@ -103,35 +157,44 @@ const ProfileScreen: React.FC = () => {
         </TouchableOpacity>
       </View> */}
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+          />
+        }
+      >
+     
+        
         {/* Profile Card */}
         <View style={[styles.profileCard, { backgroundColor: theme.colors.card }]}>
           <Image 
-            source={{ uri: user?.avatar || defaultAvatar }} 
+            source={{ 
+              uri: user?.image && user.image !== 'a' ? user.image : defaultAvatar 
+            }} 
             style={styles.avatar} 
             defaultSource={{ uri: defaultAvatar }}
           />
           
           <View style={styles.profileInfo}>
             <Text style={[styles.name, { color: theme.colors.text }]}>
-              {user?.full_name}
+              {user?.full_name !== 'string' ? user?.full_name : t('defaultUserName')}
             </Text>
             <Text style={[styles.email, { color: theme.colors.textSecondary }]}>
               {user?.email}
             </Text>
-            <View style={styles.statsContainer}>
-              <View style={styles.statItem}>
-                <Text style={[styles.statValue, { color: theme.colors.primary }]}>0</Text>
-                <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>{t('completedGoals')}</Text>
-              </View>
-              <View style={[styles.statDivider, { backgroundColor: theme.colors.divider }]} />
-              <View style={styles.statItem}>
-                <Text style={[styles.statValue, { color: theme.colors.primary }]}>
-                  {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('vi-VN', { month: '2-digit', year: 'numeric' }) : 'N/A'}
+            
+            {/* Role Badge */}
+            {user?.role && (
+              <View style={[styles.roleBadge, { backgroundColor: theme.colors.primary }]}>
+                <Ionicons name="shield-checkmark" size={12} color="white" />
+                <Text style={styles.roleText}>
+                  {getRoleDisplayName(user.role)}
                 </Text>
-                <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>{t('joinedSince')}</Text>
               </View>
-            </View>
+            )}
+           
           </View>
         </View>
 
@@ -305,6 +368,22 @@ const styles = StyleSheet.create({
   },
   versionText: {
     fontSize: 13,
+  },
+  roleBadge: {
+    backgroundColor: '#0070FF',
+    borderRadius: 12,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    marginBottom: 8,
+  },
+  roleText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: 'white',
+    marginLeft: 4,
   },
 });
 

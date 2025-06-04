@@ -308,6 +308,97 @@ export const translations = {
     // Chart Labels
     incomeLabel: "Thu nhập",
     expenseLabel: "Chi tiêu",
+
+    // User Management & Profile
+    userRoleAdmin: "Quản trị viên",
+    userRoleUser: "Người dùng", 
+    userRoleModerator: "Điều hành viên",
+    defaultUserName: "Người dùng",
+    
+    // Profile Actions & Messages
+    logoutConfirmTitle: "Đăng xuất",
+    logoutConfirmMessage: "Bạn có chắc chắn muốn đăng xuất không?",
+    logoutError: "Không thể đăng xuất. Vui lòng thử lại.",
+    profileRefreshError: "Không thể làm mới thông tin cá nhân",
+    
+    // Data Management
+    saveUserDataSuccess: "Đã lưu thông tin user thành công!",
+    saveUserDataError: "Không thể lưu thông tin user",
+    loadUserDataError: "Không thể tải thông tin user", 
+    noUserDataSaved: "Chưa có thông tin user nào được lưu",
+    userDataTitle: "Thông tin User",
+    currentUserData: "User Data hiện tại:",
+    
+    // Test Actions (for development)
+    saveUserDataFromAPI: "Lưu User Data từ API",
+    loadSavedUserData: "Tải User Data đã lưu",
+    saving: "Đang lưu...",
+    
+    // Common Error Messages
+    errorTitle: "Lỗi",
+    successTitle: "Thành công",
+    warningTitle: "Cảnh báo",
+    infoTitle: "Thông báo",
+    
+    // Goal Detail Screen
+    deleteMilestoneTitle: "Xóa mốc quan trọng",
+    deleteMilestoneMessage: "Bạn có chắc chắn muốn xóa mốc này?",
+    deleteGoalTitle: "Xóa mục tiêu", 
+    deleteGoalMessage: "Bạn có chắc chắn muốn xóa mục tiêu này? Hành động này không thể hoàn tác.",
+    deleteMilestoneSuccess: "Đã xóa mốc quan trọng",
+    deleteGoalSuccess: "Đã xóa mục tiêu thành công",
+    deleteGoalError: "Không thể xóa mục tiêu. Vui lòng thử lại.",
+    
+    // Navigation & Actions
+    navigateToDailyGoals: "Điều hướng đến nhiệm vụ hàng ngày cho",
+    loadingGoal: "Đang tải mục tiêu...",
+    loadGoalError: "Không thể tải thông tin mục tiêu. Vui lòng thử lại.",
+    goalNotFound: "Không tìm thấy mục tiêu",
+    retry: "Thử lại",
+    options: "Tùy chọn",
+    chooseAction: "Chọn hành động",
+    editGoal: "Sửa mục tiêu",
+    deleteGoal: "Xóa mục tiêu",
+    
+    // Goal Progress & Dates
+    progressLabel: "tiến độ",
+    completed: "Hoàn thành", 
+    notSet: "Chưa xác định",
+    
+    // Delete Action
+    delete: "Xóa",
+    
+    // Long-term Goals Screen
+    confirmDelete: "Xác nhận xóa",
+    confirmDeleteGoalMessage: "Bạn có chắc chắn muốn xóa mục tiêu \"{{goalName}}\"?",
+    noGoalsEmpty: "Chưa có mục tiêu nào",
+    emptyListMessage: "Danh sách trống",
+    createFirstGoalMessage: "Hãy tạo mục tiêu dài hạn đầu tiên của bạn để bắt đầu hành trình phát triển",
+    noGoalsInStatusMessage: "Không có mục tiêu nào ở trạng thái này",
+    createNewGoal: "Tạo mục tiêu mới",
+    goalCount: "{{count}} mục tiêu",
+    loadingGoals: "Đang tải mục tiêu...",
+    
+    // Status Filters
+    statusAll: "Tất cả",
+    statusInProgress: "Đang thực hiện", 
+    statusCompleted: "Hoàn thành",
+    statusOverdue: "Quá hạn",
+    statusUpcoming: "Sắp tới",
+    
+    // Relative Dates
+    overdueDays: "Quá hạn {{days}} ngày",
+    today: "Hôm nay",
+    tomorrow: "Ngày mai", 
+    daysLeft: "{{days}} ngày nữa",
+    
+    // Long-term Goal Detail Sections
+    mediumTermGoalsSection: "Mục tiêu trung hạn",
+    clickToViewDailyTasks: "Nhấn vào từng mục tiêu để xem và tạo nhiệm vụ hàng ngày",
+    progressHistorySection: "Lịch sử tiến độ",
+    
+    // Loading Error for Long-term Goals
+    loadLongTermGoalsError: "Không thể tải mục tiêu dài hạn. Vui lòng thử lại.",
   },
 
   en: {
@@ -621,6 +712,97 @@ export const translations = {
     // Chart Labels
     incomeLabel: "Income",
     expenseLabel: "Expense",
+
+    // User Management & Profile
+    userRoleAdmin: "Administrator",
+    userRoleUser: "User", 
+    userRoleModerator: "Moderator",
+    defaultUserName: "User",
+    
+    // Profile Actions & Messages
+    logoutConfirmTitle: "Logout",
+    logoutConfirmMessage: "Are you sure you want to logout?",
+    logoutError: "Unable to logout. Please try again.",
+    profileRefreshError: "Unable to refresh profile information",
+    
+    // Data Management
+    saveUserDataSuccess: "User data saved successfully!",
+    saveUserDataError: "Unable to save user data",
+    loadUserDataError: "Unable to load user data", 
+    noUserDataSaved: "No user data saved yet",
+    userDataTitle: "User Information",
+    currentUserData: "Current User Data:",
+    
+    // Test Actions (for development)
+    saveUserDataFromAPI: "Save User Data from API",
+    loadSavedUserData: "Load Saved User Data",
+    saving: "Saving...",
+    
+    // Common Error Messages
+    errorTitle: "Error",
+    successTitle: "Success",
+    warningTitle: "Warning",
+    infoTitle: "Information",
+    
+    // Goal Detail Screen
+    deleteMilestoneTitle: "Delete Milestone",
+    deleteMilestoneMessage: "Are you sure you want to delete this milestone?",
+    deleteGoalTitle: "Delete Goal", 
+    deleteGoalMessage: "Are you sure you want to delete this goal? This action cannot be undone.",
+    deleteMilestoneSuccess: "Milestone deleted successfully",
+    deleteGoalSuccess: "Goal deleted successfully",
+    deleteGoalError: "Unable to delete goal. Please try again.",
+    
+    // Navigation & Actions
+    navigateToDailyGoals: "Navigate to daily tasks for",
+    loadingGoal: "Loading goal...",
+    loadGoalError: "Unable to load goal information. Please try again.",
+    goalNotFound: "Goal not found",
+    retry: "Retry",
+    options: "Options",
+    chooseAction: "Choose action",
+    editGoal: "Edit goal",
+    deleteGoal: "Delete goal",
+    
+    // Goal Progress & Dates
+    progressLabel: "progress",
+    completed: "Completed", 
+    notSet: "Not set",
+    
+    // Delete Action
+    delete: "Delete",
+    
+    // Long-term Goals Screen
+    confirmDelete: "Confirm Delete",
+    confirmDeleteGoalMessage: "Are you sure you want to delete the goal \"{{goalName}}\"?",
+    noGoalsEmpty: "No goals yet",
+    emptyListMessage: "Empty list",
+    createFirstGoalMessage: "Create your first long-term goal to start your development journey",
+    noGoalsInStatusMessage: "No goals in this status",
+    createNewGoal: "Create new goal",
+    goalCount: "{{count}} goals",
+    loadingGoals: "Loading goals...",
+    
+    // Status Filters
+    statusAll: "All",
+    statusInProgress: "In Progress", 
+    statusCompleted: "Completed",
+    statusOverdue: "Overdue",
+    statusUpcoming: "Upcoming",
+    
+    // Relative Dates
+    overdueDays: "{{days}} days overdue",
+    today: "Today",
+    tomorrow: "Tomorrow", 
+    daysLeft: "{{days}} days left",
+    
+    // Long-term Goal Detail Sections
+    mediumTermGoalsSection: "Medium-term Goals",
+    clickToViewDailyTasks: "Click on each goal to view and create daily tasks",
+    progressHistorySection: "Progress History",
+    
+    // Loading Error for Long-term Goals
+    loadLongTermGoalsError: "Unable to load long-term goals. Please try again.",
   },
 };
 
