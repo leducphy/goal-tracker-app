@@ -14,7 +14,7 @@ import useTranslation from '../../i18n';
 import useTheme from '../../styles/theme';
 
 import { RootStackParamList } from '../../App';
-import { ROUTES } from '../../constants/routes';
+import { ROUTES } from '../../constants/ROUTES';
 
 type OverviewScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 

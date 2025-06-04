@@ -6,7 +6,7 @@ import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { RootStackParamList } from '../App';
-import { ROUTES } from '../constants/routes';
+import { ROUTES } from '../constants/ROUTES';
 import useTranslation from '../i18n';
 import useTheme from '../styles/theme';
 

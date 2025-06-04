@@ -4,7 +4,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ROUTES } from '../constants/routes';
+import { ROUTES } from '../constants/ROUTES';
 import useTranslation from '../i18n';
 import GoalsScreen from '../screens/goals/Index';
 import OverviewScreen from '../screens/overview';

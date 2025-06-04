@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ROUTES } from '../../constants/routes';
+import { ROUTES } from '../../constants/ROUTES';
 import useTranslation from '../../i18n';
 import useTheme from '../../styles/theme';
 import { TransactionItem, type Transaction } from './components';

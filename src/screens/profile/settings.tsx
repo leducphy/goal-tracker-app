@@ -4,7 +4,7 @@ import React from 'react';
 import { ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { ROUTES } from '../../constants/routes';
+import { ROUTES } from '../../constants/ROUTES';
 import { useAppContext } from '../../contexts/AppContext';
 import useTranslation from '../../i18n';
 import useTheme from '../../styles/theme';

@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { RootStackParamList } from '../../App';
-import { ROUTES } from '../../constants/routes';
+import { ROUTES } from '../../constants/ROUTES';
 import useTranslation from '../../i18n';
 import useTheme from '../../styles/theme';
 import { goalsService, LongTermGoal, GoalStatusFilter } from '../../api/services/goalsService';
