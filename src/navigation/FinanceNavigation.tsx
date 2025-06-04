@@ -1,7 +1,7 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import React from 'react';
 import { ROUTES } from '../constants/ROUTES';
-import FinanceScreen from '../screens/finance';
+import FinanceScreen from '../screens/finance/Index';
 import AddLoan from '../screens/finance/AddLoan';
 import AddTransaction from '../screens/finance/AddTransaction';
 import LoanManagement from '../screens/finance/LoanManagement';

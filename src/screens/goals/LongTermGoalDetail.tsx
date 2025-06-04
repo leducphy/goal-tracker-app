@@ -23,7 +23,7 @@ import { goalsService, LongTermGoal } from '../../api/services/goalsService';
 import useTranslation from '../../i18n';
 import useTheme from '../../styles/theme';
 import { SwipeableGoalItem } from '../../components/goals';
-import { ROUTES } from '../../constants/ROUTES';
+import { ROUTES } from '../../constants/routes';
 
 // Utility functions inline
 const getStatusColor = (status: string) => {

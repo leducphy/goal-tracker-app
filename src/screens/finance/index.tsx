@@ -3,7 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ROUTES } from '../../constants/ROUTES';
+import { ROUTES } from '../../constants/routes';
 import useTranslation from '../../i18n';
 import useTheme from '../../styles/theme';
 import { formatCurrency } from '../../utils/formatters';
