@@ -1,68 +1,90 @@
-# Goal Tracker
+# Goal Tracker App
 
-A mobile application built with React Native and Expo to help users track their goals, finances, and overall progress.
+A modern mobile application built with React Native and Expo to help users track their goals, finances, and overall progress with a beautiful, intuitive interface.
 
-## Features
+<p align="center">
+  <img src="https://files.catbox.moe/y7y9jr.gif" alt="Goal Tracker App Demo" width="300" />
+</p>
 
-- **Login Screen**: Simple authentication flow
-- **Curved Bottom Tab Navigation**: Beautiful curved tab bar with 4 main sections
-- **Overview Screen**: Dashboard showing goal progress and statistics
-- **Goals Screen**: Manage and track various goals with categories
-- **Finance Screen**: Track financial goals and transactions 
-- **Profile Screen**: User profile management
+## Key Features
+
+- **Modern UI/UX**: Clean, intuitive interface with smooth animations and transitions
+- **Goal Management**: Create, track, and manage both short-term and long-term goals
+- **Progress Tracking**: Visual progress indicators and statistics for your goals
+- **Swipeable Actions**: Intuitive swipe gestures for quick actions like edit and delete
+- **Categorization**: Organize goals by status (In Progress, Completed, Overdue)
+- **Finance Integration**: Track financial goals and transactions
+- **Personalized Dashboard**: Overview of all your goals and achievements
 
 ## Technologies
 
-- React Native
-- Expo
-- TypeScript
-- React Navigation
-- React Native Curved Bottom Bar
+- **React Native**: Core framework for cross-platform mobile development
+- **Expo**: Development platform for building and deploying
+- **TypeScript**: Type-safe code for better development experience
+- **React Navigation**: Navigation and routing solution
+- **React Native Gesture Handler**: Gesture recognition and handling
+- **React Native Reanimated**: Fluid animations and transitions
 
 ## Project Structure
 
 ```
 /src
-  /components        # Reusable UI components
-  /constants         # App constants (theme, configurations)
-  /navigation        # Navigation configuration
-  /screens           # App screens
-    - LoginScreen.tsx
-    - OverviewScreen.tsx
-    - GoalsScreen.tsx
-    - FinanceScreen.tsx
-    - ProfileScreen.tsx
-  /utils             # Utility functions
-  App.tsx            # Main App component
+  /api              # API services and data handling
+  /components       # Reusable UI components
+    /goals          # Goal-related components
+  /constants        # App constants and configurations
+  /i18n             # Internationalization
+  /navigation       # Navigation configuration
+  /screens          # App screens
+    /goals          # Goal-related screens
+    /finance        # Finance-related screens
+  /styles           # Theme and styling utilities
+  /utils            # Utility functions
 ```
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js
+- Node.js (v14 or newer)
 - npm or yarn
 - Expo CLI
 
 ### Installation
 
-1. Clone the repository
+1. Clone the repository:
+   ```
+   git clone https://github.com/yourusername/goal-tracker-app.git
+   cd goal-tracker-app
+   ```
+
 2. Install dependencies:
    ```
    npm install
    ```
+
 3. Start the development server:
    ```
    npm start
    ```
 
-## Screenshots
-
-*Screenshots will be added when available*
+4. Run on device or emulator:
+   - Scan the QR code with Expo Go app (Android)
+   - Press 'i' for iOS simulator or 'a' for Android emulator
 
 ## Development Roadmap
 
-- Add actual authentication
-- Implement data persistence with AsyncStorage
-- Connect to a backend API
-- Add push notifications for goal reminders
+- [ ] Cloud synchronization
+- [ ] Social sharing features
+- [ ] Advanced analytics and insights
+- [ ] Customizable themes
+- [ ] Push notifications and reminders
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- Icons by [Ionicons](https://ionicons.com/)
+- Design inspiration from various modern mobile applications
