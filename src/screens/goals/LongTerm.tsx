@@ -213,6 +213,13 @@ const LongTermGoalsScreen: React.FC = () => {
           <Text style={[styles.headerTitle, { color: theme.colors.text }]}>
             {t('longTermGoals')}
           </Text>
+          <TouchableOpacity
+            style={[styles.headerButton, { backgroundColor: `${theme.colors.primary}15` }]}
+            onPress={handleCreateGoal}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="add" size={24} color={theme.colors.primary} />
+          </TouchableOpacity>
         </View>
         
         {/* Tabs */}
