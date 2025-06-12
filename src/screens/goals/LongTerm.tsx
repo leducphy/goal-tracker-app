@@ -1,8 +1,8 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useState, useEffect, useCallback } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View, RefreshControl, ActivityIndicator, Alert } from 'react-native';
+import React, { useState, useEffect, useCallback, useContext, useRef } from 'react';
+import { Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View, RefreshControl, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -13,6 +13,7 @@ import useTheme from '../../styles/theme';
 import { goalsService, LongTermGoal, GoalStatusFilter } from '../../api/services/goalsService';
 import { useToast } from '../../components/ToastProvider';
 import { SwipeableGoalItem, Goal } from '../../components/goals';
+import { ScrollContext } from '../../navigation/MainNavigation';
 
 type LongTermGoalsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -22,58 +23,82 @@ const LongTermGoalsScreen: React.FC = () => {
   const navigation = useNavigation<LongTermGoalsScreenNavigationProp>();
   const { showSuccess, showError } = useToast();
   
+  const { scrollY, setScrolling } = useContext(ScrollContext);
+  
   const [activeTab, setActiveTab] = useState<number>(0);
   const [goals, setGoals] = useState<LongTermGoal[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   
-  const statusFilters: { 
-    id: number; 
-    name: string; 
-    status: GoalStatusFilter;
-    icon: string;
-    color: string;
-  }[] = [
-    { id: 0, name: t('statusAll'), status: 'all', icon: 'grid-outline', color: '#6366F1' },
-    { id: 1, name: t('statusInProgress'), status: 'inProgress', icon: 'play-outline', color: '#3B82F6' },
-    { id: 2, name: t('statusCompleted'), status: 'completed', icon: 'checkmark-outline', color: '#10B981' },
-    { id: 3, name: t('statusOverdue'), status: 'overdue', icon: 'alert-outline', color: '#EF4444' },
-  ];
+  // Sử dụng useRef để theo dõi trạng thái mounted của component
+  const isMounted = useRef(true);
   
+  // Sử dụng useRef để lưu trữ statusFilters để tránh tạo lại mỗi lần render
+  const statusFilters = useRef([
+    { id: 0, name: t('statusAll'), status: 'all' as GoalStatusFilter, icon: 'grid-outline', color: '#6366F1' },
+    { id: 1, name: t('statusInProgress'), status: 'inProgress' as GoalStatusFilter, icon: 'play-outline', color: '#3B82F6' },
+    { id: 2, name: t('statusCompleted'), status: 'completed' as GoalStatusFilter, icon: 'checkmark-outline', color: '#10B981' },
+    { id: 3, name: t('statusOverdue'), status: 'overdue' as GoalStatusFilter, icon: 'alert-outline', color: '#EF4444' },
+  ]).current;
+  
+  // Tối ưu fetchGoals để không phụ thuộc vào t và showError
   const fetchGoals = useCallback(async (statusFilter?: GoalStatusFilter) => {
     try {
       console.log('🎯 Fetching long term goals with filter:', statusFilter);
       const response = await goalsService.getLongTermGoals(statusFilter);
       
-      setGoals(response.goals);
-      
-      console.log('✅ Long term goals loaded:', response.goals.length, 'goals');
+      // Kiểm tra component còn mounted không trước khi cập nhật state
+      if (isMounted.current) {
+        setGoals(response.goals);
+        console.log('✅ Long term goals loaded:', response.goals.length, 'goals');
+      }
     } catch (error) {
-      console.error('❌ Error fetching long term goals:', error);
-      showError(t('loadLongTermGoalsError'));
+      // Kiểm tra component còn mounted không trước khi hiển thị lỗi
+      if (isMounted.current) {
+        console.error('❌ Error fetching long term goals:', error);
+        showError(t('loadLongTermGoalsError'));
+      }
     }
-  }, [showError, t]);
+  }, []); // Không phụ thuộc vào t và showError
 
+  // Tối ưu loadGoals để chỉ phụ thuộc vào activeTab và fetchGoals
   const loadGoals = useCallback(async () => {
+    if (!isMounted.current) return;
+    
     setLoading(true);
     const currentFilter = statusFilters[activeTab];
     await fetchGoals(currentFilter.status);
-    setLoading(false);
+    
+    if (isMounted.current) {
+      setLoading(false);
+    }
   }, [activeTab, fetchGoals]);
 
+  // Tối ưu handleRefresh để chỉ phụ thuộc vào activeTab và fetchGoals
   const handleRefresh = useCallback(async () => {
+    if (!isMounted.current) return;
+    
     setRefreshing(true);
     const currentFilter = statusFilters[activeTab];
     await fetchGoals(currentFilter.status);
-    setRefreshing(false);
+    
+    if (isMounted.current) {
+      setRefreshing(false);
+    }
   }, [activeTab, fetchGoals]);
 
+  // Tối ưu handleTabChange để chỉ phụ thuộc vào fetchGoals
   const handleTabChange = useCallback(async (tabIndex: number) => {
+    if (!isMounted.current) return;
+    
     setActiveTab(tabIndex);
     setLoading(true);
     const selectedFilter = statusFilters[tabIndex];
     await fetchGoals(selectedFilter.status);
-    setLoading(false);
+    
+    if (isMounted.current) {
+      setLoading(false);
+    }
   }, [fetchGoals]);
 
   const handleGoalPress = useCallback((goal: Goal) => {
@@ -124,9 +149,33 @@ const LongTermGoalsScreen: React.FC = () => {
     );
   }, [showSuccess, showError, loadGoals, t]);
 
+  const handleScroll = Animated.event(
+    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+    { 
+      useNativeDriver: true,
+      listener: (event: any) => {
+        const offsetY = event.nativeEvent.contentOffset.y;
+        // Có thể thêm logic khác ở đây nếu cần
+      }
+    }
+  );
+
+  const handleShowBottomBar = () => {
+    Animated.spring(scrollY, {
+      toValue: 0,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  // Sử dụng useEffect để gọi API chỉ một lần khi component mount
   useEffect(() => {
     loadGoals();
-  }, []);
+    
+    // Cleanup function để đánh dấu component đã unmount
+    return () => {
+      isMounted.current = false;
+    };
+  }, [loadGoals]);
   
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
@@ -145,16 +194,14 @@ const LongTermGoalsScreen: React.FC = () => {
         }
       </Text>
       
-      {activeTab === 0 && (
-        <TouchableOpacity 
-          style={[styles.createButton, { backgroundColor: theme.colors.primary }]}
-          onPress={handleCreateGoal}
-          activeOpacity={0.9}
-        >
-          <Ionicons name="add" size={20} color="white" />
-          <Text style={styles.createButtonText}>{t('createNewGoal')}</Text>
-        </TouchableOpacity>
-      )}
+      <TouchableOpacity 
+        style={[styles.createButtonInline, { backgroundColor: theme.colors.primary }]}
+        onPress={handleCreateGoal}
+        activeOpacity={0.9}
+      >
+        <Ionicons name="add" size={20} color="white" />
+        <Text style={styles.createButtonText}>{t('createNewGoal')}</Text>
+      </TouchableOpacity>
     </View>
   );
   
@@ -162,29 +209,10 @@ const LongTermGoalsScreen: React.FC = () => {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
         {/* Header */}
-        <View style={[styles.header, { backgroundColor: theme.colors.card }]}>
-          <TouchableOpacity 
-            style={[styles.headerButton, { backgroundColor: `${theme.colors.text}08` }]}
-            onPress={() => navigation.goBack()}
-          >
-            <Ionicons name="chevron-back" size={22} color={theme.colors.text} />
-          </TouchableOpacity>
-          
-          <View style={styles.headerCenter}>
-            <Text style={[styles.headerTitle, { color: theme.colors.text }]}>
-              {t('longTermGoals')}
-            </Text>
-            <Text style={[styles.headerSubtitle, { color: theme.colors.textSecondary }]}>
-              {t('goalCount', { count: goals.length })}
-            </Text>
-          </View>
-          
-          <TouchableOpacity 
-            style={[styles.headerButton, { backgroundColor: theme.colors.primary }]}
-            onPress={handleCreateGoal}
-          >
-            <Ionicons name="add" size={22} color="white" />
-          </TouchableOpacity>
+        <View style={styles.header}>
+          <Text style={[styles.headerTitle, { color: theme.colors.text }]}>
+            {t('longTermGoals')}
+          </Text>
         </View>
         
         {/* Tabs */}
@@ -201,7 +229,10 @@ const LongTermGoalsScreen: React.FC = () => {
                   styles.tab,
                   activeTab === index && [styles.activeTab, { backgroundColor: tab.color }]
                 ]}
-                onPress={() => handleTabChange(index)}
+                onPress={() => {
+                  handleTabChange(index);
+                  handleShowBottomBar();
+                }}
                 disabled={loading}
                 activeOpacity={0.8}
               >
@@ -224,42 +255,61 @@ const LongTermGoalsScreen: React.FC = () => {
         </View>
         
         {/* Content */}
-        {loading ? (
+        {loading && !refreshing ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={theme.colors.primary} />
-            <Text style={[styles.loadingText, { color: theme.colors.textSecondary }]}>
+            <Text style={[styles.loadingText, { color: theme.colors.text }]}>
               {t('loadingGoals')}
             </Text>
           </View>
         ) : (
-          <ScrollView 
-            style={styles.content}
-            showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={handleRefresh}
-                tintColor={theme.colors.primary}
-              />
-            }
-          >
-            {goals.length === 0 ? (
-              renderEmptyState()
-            ) : (
-              <View style={styles.goalsList}>
-                {goals.map((goal) => (
-                  <SwipeableGoalItem
-                    key={goal.id}
-                    goal={goal}
-                    onPress={handleGoalPress}
-                    onUpdate={handleUpdateGoal}
-                    onDelete={handleDeleteGoal}
-                  />
-                ))}
-              </View>
-            )}
-          </ScrollView>
+          goals.length > 0 ? (
+            <Animated.ScrollView
+              contentContainerStyle={styles.content}
+              showsVerticalScrollIndicator={false}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={handleRefresh}
+                  colors={[theme.colors.primary]}
+                  tintColor={theme.colors.primary}
+                />
+              }
+              onScroll={handleScroll}
+              scrollEventThrottle={16}
+              onScrollBeginDrag={() => setScrolling(true)}
+              onScrollEndDrag={() => setScrolling(false)}
+              onMomentumScrollBegin={() => setScrolling(true)}
+              onMomentumScrollEnd={() => setScrolling(false)}
+            >
+              {goals.map((goal) => (
+                <SwipeableGoalItem
+                  key={goal.id}
+                  goal={{
+                    id: goal.id,
+                    title: goal.title || goal.name || '',
+                    description: goal.description || '',
+                    status: goal.status,
+                    category: typeof goal.category === 'string' ? goal.category : 'Mục tiêu',
+                    progress: goal.progress || 0,
+                    dueDate: goal.endDate,
+                    createdAt: goal.startDate,
+                  }}
+                  onPress={handleGoalPress}
+                  onUpdate={handleUpdateGoal}
+                  onDelete={handleDeleteGoal}
+                  showChevron
+                />
+              ))}
+              
+              <View style={{ height: 100 }} />
+            </Animated.ScrollView>
+          ) : (
+            renderEmptyState()
+          )
         )}
+        
+        <View style={{ height: 100 }} />
       </SafeAreaView>
     </GestureHandlerRootView>
   );
@@ -271,33 +321,22 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    elevation: 2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-  },
-  headerButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerCenter: {
-    flex: 1,
-    alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 28,
     fontWeight: '700',
-    marginBottom: 2,
   },
-  headerSubtitle: {
-    fontSize: 13,
-    fontWeight: '500',
+  headerButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,122,255,0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   tabsContainer: {
     paddingVertical: 16,
@@ -373,7 +412,7 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     opacity: 0.8,
   },
-  createButton: {
+  createButtonInline: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 16,
@@ -384,6 +423,22 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
+  },
+  floatingButton: {
+    position: 'absolute',
+    bottom: 24,
+    right: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    zIndex: 100,
   },
   createButtonText: {
     color: 'white',

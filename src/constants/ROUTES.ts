@@ -9,6 +9,7 @@ export const ROUTES = {
   OVERVIEW: 'Overview',
   GOALS: 'Goals',
   FINANCE: 'Finance',
+  SOCIAL: 'Social',
   PROFILE: 'Profile',
   
   // Settings routes
@@ -23,9 +24,11 @@ export const ROUTES = {
   // Goal screens
   LONG_TERM_GOALS: 'LongTermGoals',
   LONG_TERM_GOAL_DETAIL: 'LongTermGoalDetail',
+  MEDIUM_TERM_GOAL_DETAIL: 'MediumTermGoalDetail',
   GOAL_GROUPS: 'GoalGroups',
   ACHIEVEMENTS: 'Achievements',
   CREATE_GOAL: 'CreateGoal',
+  MEDIUM_GOAL_FORM: 'MediumGoalForm',
   
   // Finance screens
   FINANCE_DASHBOARD: 'FinanceDashboard',

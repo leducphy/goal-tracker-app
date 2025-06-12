@@ -181,6 +181,7 @@ const FinanceScreen: React.FC = () => {
         {transactions.map((transaction) => (
           <TransactionItem key={transaction.id} transaction={transaction} />
         ))}
+        <View style={{ height: 100 }} />
       </ScrollView>
     </SafeAreaView>
   );

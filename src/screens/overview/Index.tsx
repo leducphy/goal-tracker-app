@@ -1,8 +1,8 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useContext } from 'react';
+import { Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import SectionHeader from '../../components/common/SectionHeader';
@@ -15,6 +15,7 @@ import useTheme from '../../styles/theme';
 
 import { RootStackParamList } from '../../App';
 import { ROUTES } from '../../constants/ROUTES';
+import { ScrollContext } from '../../navigation/MainNavigation';
 
 type OverviewScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -42,6 +43,9 @@ const OverviewScreen: React.FC = () => {
   const theme = useTheme();
   const { t } = useTranslation();
   const navigation = useNavigation<OverviewScreenNavigationProp>();
+  
+  // Sử dụng ScrollContext để ẩn/hiện bottom bar
+  const { scrollY, setScrolling } = useContext(ScrollContext);
   
   // Mock data for the overview screen
   const mockGoals = [
@@ -210,39 +214,102 @@ const OverviewScreen: React.FC = () => {
     }
   };
   
+  // Thêm handler cho sự kiện scroll
+  const handleScroll = Animated.event(
+    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+    { 
+      useNativeDriver: true,
+      listener: (event: any) => {
+        const offsetY = event.nativeEvent.contentOffset.y;
+        // Có thể thêm logic khác ở đây nếu cần
+      }
+    }
+  );
+
+  // Hàm để hiển thị lại bottom bar khi cần
+  const handleShowBottomBar = () => {
+    Animated.spring(scrollY, {
+      toValue: 0,
+      useNativeDriver: true,
+    }).start();
+  };
+  
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      {/* <View style={[styles.header, { backgroundColor: theme.colors.card, borderBottomColor: theme.colors.border }]}>
+      <View style={styles.header}>
         <View style={styles.headerContent}>
           <View style={styles.headerTextContainer}>
-            <Text style={[styles.headerTitle, { color: theme.colors.text }]}>Xin chào, Minh!</Text>
+            <Text style={[styles.headerTitle, { color: theme.colors.text }]}>
+              Chào buổi sáng
+            </Text>
             <Text style={[styles.headerSubtitle, { color: theme.colors.textSecondary }]}>
-              Hôm nay là một ngày tuyệt vời để tiến bộ
+              Hôm nay là một ngày tuyệt vời để đạt được mục tiêu của bạn
             </Text>
           </View>
         </View>
-      </View> */}
+      </View>
       
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Check-in Card */}
-        <TouchableOpacity 
+      {/* Sử dụng Animated.ScrollView thay cho ScrollView thông thường */}
+      <Animated.ScrollView 
+        style={styles.content}
+        onScroll={handleScroll}
+        scrollEventThrottle={16} // Tăng độ mượt của animation
+        showsVerticalScrollIndicator={false}
+        onScrollBeginDrag={() => setScrolling(true)}
+        onScrollEndDrag={() => setScrolling(false)}
+        onMomentumScrollBegin={() => setScrolling(true)}
+        onMomentumScrollEnd={() => setScrolling(false)}
+      >
+        {/* Check-in card */}
+        <TouchableOpacity
           style={[styles.checkInCard, { backgroundColor: theme.colors.card }]}
           onPress={handleNavigateToCheckIn}
+          activeOpacity={0.8}
         >
           <View style={styles.checkInCardContent}>
-            <View style={[styles.checkInIconContainer, { backgroundColor: theme.colors.primary }]}>
-              <Ionicons name="today-outline" size={24} color="white" />
+            <View
+              style={[
+                styles.checkInIconContainer,
+                { backgroundColor: `${theme.colors.primary}20` },
+              ]}
+            >
+              <Ionicons name="calendar-outline" size={24} color={theme.colors.primary} />
             </View>
             <View style={styles.checkInTextContainer}>
-              <Text style={[styles.checkInCardTitle, { color: theme.colors.text }]}>Check-in hàng ngày</Text>
-              <Text style={[styles.checkInCardSubtitle, { color: theme.colors.textSecondary }]}>
-                Cập nhật tiến độ mục tiêu của bạn
+              <Text style={[styles.checkInCardTitle, { color: theme.colors.text }]}>
+                Check-in hàng ngày
+              </Text>
+              <Text
+                style={[styles.checkInCardSubtitle, { color: theme.colors.textSecondary }]}
+              >
+                Theo dõi tiến độ hàng ngày của bạn
               </Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={theme.colors.textSecondary} />
           </View>
         </TouchableOpacity>
 
+        {/* Stats Row */}
+        <View style={styles.statsRow}>
+          <StatCard
+            title="Mục tiêu hoàn thành"
+            value="15"
+            subtitle="Tháng này"
+          />
+          <StatCard
+            title="Chuỗi hiện tại"
+            value="7"
+            subtitle="Ngày"
+          />
+        </View>
+
+        {/* Progress chart */}
+        <SectionHeader
+          title="Tiến độ của bạn"
+          actionText="Xem thống kê"
+          onAction={handleNavigateToStats}
+        />
+        
         {/* Today's Progress */}
         <SectionHeader
           title="Tiến độ mục tiêu hôm nay"
@@ -276,7 +343,7 @@ const OverviewScreen: React.FC = () => {
           actionText="Xem tất cả"
           onAction={() => navigateToMainTab('Goals')}
         />
-        <View style={styles.upcomingGoalsContainer}>
+        <View style={[styles.upcomingGoalsContainer, { backgroundColor: theme.colors.card }]}>
           <Text style={[styles.upcomingGoalsSubtitle, { color: theme.colors.textSecondary }]}>
             Các mục tiêu sắp đến hạn của bạn
           </Text>
@@ -316,7 +383,7 @@ const OverviewScreen: React.FC = () => {
           actionText="Xem tất cả"
           onAction={() => navigation.navigate(ROUTES.STATS)}
         />
-        <View style={styles.recentActivitiesContainer}>
+        <View style={[styles.recentActivitiesContainer, { backgroundColor: theme.colors.card }]}>
           {recentActivities.map((activity) => (
             <TouchableOpacity 
               key={activity.id}
@@ -351,7 +418,7 @@ const OverviewScreen: React.FC = () => {
         <View style={[styles.journalContainer, { backgroundColor: theme.colors.card }]}>
           <View style={styles.journalContent}>
             <Ionicons name="book-outline" size={32} color={theme.colors.textSecondary} style={styles.journalIcon} />
-            <Text style={[styles.journalEmptyText, { color: theme.colors.textSecondary }]}>
+            <Text style={[styles.journalEmptyText, { color: theme.colors.text }]}>
               Bạn chưa có nhật ký nào
             </Text>
             <Text style={[styles.journalSubtext, { color: theme.colors.textSecondary }]}>
@@ -373,7 +440,7 @@ const OverviewScreen: React.FC = () => {
           onAction={() => navigation.navigate(ROUTES.STATS)}
         />
         
-        <View style={styles.statsContainer}>
+        <View style={styles.statsCardRow}>
           <StatCard
             title="Mục tiêu dài hạn"
             value="5"
@@ -389,7 +456,7 @@ const OverviewScreen: React.FC = () => {
           />
         </View>
         
-        <View style={styles.statsContainer}>
+        <View style={styles.statsCardRow}>
           <StatCard
             title="Ngày check-in liên tiếp"
             value="12"
@@ -419,9 +486,9 @@ const OverviewScreen: React.FC = () => {
           shortTermData={shortTermData}
         />
 
-        {/* Add bottom padding to avoid content being hidden by nav bar */}
-        <View style={styles.bottomSpacer} />
-      </ScrollView>
+        {/* Thêm padding bottom để tránh nội dung bị che khuất bởi bottom bar */}
+        <View style={{ height: 100 }} />
+      </Animated.ScrollView>
     </SafeAreaView>
   );
 };
@@ -492,7 +559,6 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
   upcomingGoalsContainer: {
-    backgroundColor: 'white',
     borderRadius: 12,
     padding: 16,
     marginBottom: 28,
@@ -547,7 +613,7 @@ const styles = StyleSheet.create({
   deadlineText: {
     fontSize: 12,
   },
-  statsContainer: {
+  statsCardRow: {
     flexDirection: 'row',
     marginBottom: 24,
   },
@@ -555,7 +621,6 @@ const styles = StyleSheet.create({
     width: 12,
   },
   recentActivitiesContainer: {
-    backgroundColor: 'white',
     borderRadius: 12,
     padding: 16,
     marginBottom: 28,
@@ -633,8 +698,9 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: '600',
   },
-  bottomSpacer: {
-    height: 80, // Add extra space to avoid content being hidden by tab bar
+  statsRow: {
+    flexDirection: 'row',
+    marginBottom: 24,
   },
 });
 

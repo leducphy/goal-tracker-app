@@ -159,14 +159,15 @@ const GoalCard: React.FC<GoalCardProps> = ({
 
 const styles = StyleSheet.create({
   goalCard: {
-    borderRadius: 12,
-    elevation: 2,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    borderRadius: 16,
+    elevation: 4,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    overflow: 'hidden',
   },
   cardContent: {
-    padding: 16,
+    padding: 18,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -181,38 +182,38 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   statusIndicator: {
-    width: 4,
-    height: 40,
-    borderRadius: 2,
+    width: 5,
+    height: 42,
+    borderRadius: 3,
     marginTop: 2,
   },
   titleContainer: {
     flex: 1,
   },
   goalTitle: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '700',
     lineHeight: 22,
-    marginBottom: 6,
+    marginBottom: 8,
   },
   statusBadge: {
     alignSelf: 'flex-start',
-    paddingVertical: 3,
-    paddingHorizontal: 8,
-    borderRadius: 8,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 10,
   },
   statusText: {
     fontSize: 11,
     fontWeight: '600',
     textTransform: 'uppercase',
-    letterSpacing: 0.3,
+    letterSpacing: 0.5,
   },
   headerRight: {
     padding: 4,
   },
   descriptionSection: {
-    marginBottom: 12,
-    paddingLeft: 16,
+    marginBottom: 14,
+    paddingLeft: 17,
   },
   description: {
     fontSize: 14,
@@ -220,8 +221,8 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   progressSection: {
-    marginBottom: 12,
-    paddingLeft: 16,
+    marginBottom: 14,
+    paddingLeft: 17,
   },
   progressInfo: {
     flexDirection: 'row',
@@ -238,21 +239,25 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   progressTrack: {
-    height: 5,
-    borderRadius: 2.5,
+    height: 6,
+    borderRadius: 3,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    borderRadius: 2.5,
+    borderRadius: 3,
   },
   cardFooter: {
-    paddingLeft: 16,
+    paddingLeft: 17,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   dateInfo: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    paddingVertical: 2,
   },
   dateText: {
     fontSize: 13,

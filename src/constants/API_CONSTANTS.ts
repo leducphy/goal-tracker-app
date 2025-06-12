@@ -1,8 +1,11 @@
+//@ts-ignore
+import { API_BASE_URL } from '@env';
 /**
  * API Configuration Constants
  */
+
 export const API_CONFIG = {
-  BASE_URL: 'http://192.168.2.59:8080/api/v1', // Updated to match actual API
+  BASE_URL: API_BASE_URL, // Updated to match actual API
   TIMEOUT: 10000, // 10 seconds
   ENDPOINTS: {
     // Auth endpoints

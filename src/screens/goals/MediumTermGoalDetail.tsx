@@ -11,16 +11,15 @@ import {
   ActivityIndicator,
   ScrollView,
   RefreshControl,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { RootStackParamList } from '../../App';
 import { useToast } from '../../components/ToastProvider';
-import { goalsService, LongTermGoal } from '../../api/services/goalsService';
+import { goalsService, MediumTermGoal } from '../../api/services/goalsService';
 import useTranslation from '../../i18n';
 import useTheme from '../../styles/theme';
-import { SwipeableGoalItem } from '../../components/goals';
-import { ROUTES } from '../../constants/ROUTES';
 import CircularProgress from '../../components/common/CircularProgress';
 
 // Utility functions
@@ -77,10 +76,10 @@ const formatDateRelative = (dateString: string, t: any) => {
   }
 };
 
-type LongTermGoalDetailRouteProp = RouteProp<RootStackParamList, 'LongTermGoalDetail'>;
-type LongTermGoalDetailNavigationProp = NativeStackNavigationProp<RootStackParamList>;
+type MediumTermGoalDetailRouteProp = RouteProp<RootStackParamList, 'MediumTermGoalDetail'>;
+type MediumTermGoalDetailNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-interface GoalMilestone {
+interface DailyTask {
   id: number;
   title: string;
   description?: string;
@@ -89,25 +88,29 @@ interface GoalMilestone {
   completed_date?: string;
 }
 
-interface GoalProgress {
+interface GoalNote {
   id: number;
   date: string;
-  progress_value: number;
-  notes?: string;
+  content: string;
+  user?: {
+    id: number;
+    name: string;
+    avatar?: string;
+  }
 }
 
-const LongTermGoalDetail: React.FC = () => {
-  const route = useRoute<LongTermGoalDetailRouteProp>();
-  const navigation = useNavigation<LongTermGoalDetailNavigationProp>();
+const MediumTermGoalDetail: React.FC = () => {
+  const route = useRoute<MediumTermGoalDetailRouteProp>();
+  const navigation = useNavigation<MediumTermGoalDetailNavigationProp>();
   const { goalId } = route.params;
   
   const theme = useTheme();
   const { t } = useTranslation();
   const { showSuccess, showError, showWarning } = useToast();
 
-  const [goal, setGoal] = useState<LongTermGoal | null>(null);
-  const [milestones, setMilestones] = useState<GoalMilestone[]>([]);
-  const [progressHistory, setProgressHistory] = useState<GoalProgress[]>([]);
+  const [goal, setGoal] = useState<MediumTermGoal | null>(null);
+  const [dailyTasks, setDailyTasks] = useState<DailyTask[]>([]);
+  const [notes, setNotes] = useState<GoalNote[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -119,16 +122,51 @@ const LongTermGoalDetail: React.FC = () => {
     try {
       setLoading(true);
       
-      // Load goal details, milestones, and progress in parallel
-      const [goalResponse, milestonesResponse, progressResponse] = await Promise.all([
-        goalsService.getGoalById(goalId),
-        goalsService.getGoalMilestones(goalId),
-        goalsService.getGoalProgress(goalId),
+      // Load goal details, tasks, and notes in parallel
+      const [goalResponse, tasksResponse, notesResponse] = await Promise.all([
+        goalsService.getMediumGoalById(goalId),
+        goalsService.getDailyGoals(), // Replace with actual API call when available
+        Promise.resolve([]), // Replace with actual API call when available
       ]);
 
       setGoal(goalResponse);
-      setMilestones(milestonesResponse);
-      setProgressHistory(progressResponse);
+      
+      // Filter daily tasks only for this medium goal (mock implementation)
+      setDailyTasks(tasksResponse.goals
+        .slice(0, 5)
+        .map(task => ({
+          id: task.id,
+          title: task.name || task.title || '',
+          description: task.description,
+          target_date: task.endDate || new Date().toISOString(),
+          is_completed: task.status === 'completed',
+          completed_date: task.status === 'completed' ? new Date().toISOString() : undefined
+        }))
+      );
+      
+      // Set notes (mock data for now)
+      setNotes([
+        {
+          id: 1,
+          date: new Date(Date.now() - 86400000 * 2).toISOString(),
+          content: 'Added first subtask for this goal',
+          user: {
+            id: 1,
+            name: 'You',
+            avatar: 'https://i.pravatar.cc/150?img=12'
+          }
+        },
+        {
+          id: 2,
+          date: new Date(Date.now() - 86400000).toISOString(),
+          content: 'Making steady progress on the study plan',
+          user: {
+            id: 1,
+            name: 'You',
+            avatar: 'https://i.pravatar.cc/150?img=12'
+          }
+        }
+      ]);
       
     } catch (error) {
       console.error('Error loading goal data:', error);
@@ -144,29 +182,34 @@ const LongTermGoalDetail: React.FC = () => {
     setRefreshing(false);
   };
 
-  const handleDeleteMilestone = (milestoneId: number) => {
+  const handleUpdateTask = (taskId: number) => {
+    showWarning(t('featureInDevelopment'));
+  };
+
+  const handleDeleteTask = (taskId: number) => {
     Alert.alert(
-      t('deleteMilestoneTitle'),
-      t('deleteMilestoneMessage'),
+      t('deleteTaskTitle'),
+      t('deleteTaskMessage'),
       [
         { text: t('cancel'), style: 'cancel' },
         {
           text: t('delete'),
           style: 'destructive',
           onPress: () => {
-            setMilestones(prev => prev.filter(m => m.id !== milestoneId));
-            showSuccess(t('deleteMilestoneSuccess'));
+            setDailyTasks(prev => prev.filter(task => task.id !== taskId));
+            showSuccess(t('deleteTaskSuccess'));
           },
         },
       ]
     );
   };
 
-  const handleNavigateToDailyGoals = (mediumGoalId: number, mediumGoalName: string) => {
-    navigation.navigate(ROUTES.MEDIUM_TERM_GOAL_DETAIL, {
-      goalId: mediumGoalId,
-      goalName: mediumGoalName
-    });
+  const handleAddTask = () => {
+    showWarning(t('featureInDevelopment'));
+  };
+
+  const handleAddNote = () => {
+    showWarning(t('featureInDevelopment'));
   };
 
   const handleDeleteGoal = () => {
@@ -193,15 +236,6 @@ const LongTermGoalDetail: React.FC = () => {
     );
   };
 
-  const handleAddMediumGoal = () => {
-    navigation.navigate(ROUTES.MEDIUM_GOAL_FORM, { 
-      longTermGoalId: goalId,
-      longTermGoalName: goal?.title || '',
-      mode: 'create'
-    });
-  };
-
-  // Loading state
   if (loading && !refreshing) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -215,7 +249,6 @@ const LongTermGoalDetail: React.FC = () => {
     );
   }
 
-  // Error state
   if (!goal && !refreshing) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -276,7 +309,7 @@ const LongTermGoalDetail: React.FC = () => {
             </View>
             
             <Text style={styles.goalTitle} numberOfLines={2}>
-              {goal?.title || ''}
+              {goal?.title || goal?.name || ''}
             </Text>
             
             {goal?.description && (
@@ -333,110 +366,191 @@ const LongTermGoalDetail: React.FC = () => {
           />
         }
       >
-        {/* Medium Term Goals Section */}
+        {/* Daily Tasks Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <View>
               <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
-                {t('mediumTermGoalsSection')}
+                {t('dailyTasks')}
               </Text>
               <Text style={[styles.sectionSubtitle, { color: theme.colors.textSecondary }]}>
-                {t('clickToViewDailyTasks')}
+                {t('dailyTasksDescription')}
               </Text>
             </View>
+            
+            <TouchableOpacity
+              onPress={handleAddTask}
+              style={[styles.addButton, { backgroundColor: theme.colors.primary }]}
+            >
+              <Ionicons name="add-outline" size={22} color="white" />
+              <Text style={styles.addButtonText}>{t('addTask')}</Text>
+            </TouchableOpacity>
           </View>
           
-          <View style={styles.goalsList}>
-            {goal && goal.mediumTermGoals && goal.mediumTermGoals.length > 0 ? (
-              goal.mediumTermGoals.map((mediumGoal) => (
-                <SwipeableGoalItem
-                  key={mediumGoal.id} 
-                  goal={mediumGoal}
-                  onPress={(goal) => handleNavigateToDailyGoals(goal.id, goal.title || goal.name || '')}
-                  onUpdate={() => showWarning(t('featureInDevelopment'))}
-                  onDelete={(goal) => handleDeleteMilestone(goal.id)}
-                />
+          <View style={styles.tasksList}>
+            {dailyTasks.length > 0 ? (
+              dailyTasks.map((task, index) => (
+                <View 
+                  key={task.id} 
+                  style={[
+                    styles.taskItem,
+                    { backgroundColor: theme.colors.card }
+                  ]}
+                >
+                  <TouchableOpacity
+                    style={[
+                      styles.taskCheckbox,
+                      task.is_completed && { backgroundColor: statusColor }
+                    ]}
+                    onPress={() => {
+                      const updatedTasks = [...dailyTasks];
+                      updatedTasks[index] = {
+                        ...task,
+                        is_completed: !task.is_completed
+                      };
+                      setDailyTasks(updatedTasks);
+                    }}
+                  >
+                    {task.is_completed && (
+                      <Ionicons name="checkmark" size={16} color="white" />
+                    )}
+                  </TouchableOpacity>
+                  
+                  <View style={styles.taskContent}>
+                    <Text
+                      style={[
+                        styles.taskTitle,
+                        { color: theme.colors.text },
+                        task.is_completed && styles.taskCompleted
+                      ]}
+                    >
+                      {task.title}
+                    </Text>
+                    
+                    {task.description && (
+                      <Text
+                        style={[
+                          styles.taskDescription,
+                          { color: theme.colors.textSecondary },
+                          task.is_completed && styles.taskCompleted
+                        ]}
+                        numberOfLines={2}
+                      >
+                        {task.description}
+                      </Text>
+                    )}
+                    
+                    <Text style={[styles.taskDate, { color: theme.colors.textTertiary }]}>
+                      {formatDateRelative(task.target_date, t)}
+                    </Text>
+                  </View>
+                  
+                  <TouchableOpacity
+                    style={styles.taskMoreButton}
+                    onPress={() => {
+                      Alert.alert(
+                        task.title,
+                        t('taskOptions'),
+                        [
+                          { text: t('cancel'), style: 'cancel' },
+                          { text: t('edit'), onPress: () => handleUpdateTask(task.id) },
+                          { text: t('delete'), style: 'destructive', onPress: () => handleDeleteTask(task.id) }
+                        ]
+                      );
+                    }}
+                  >
+                    <Ionicons name="ellipsis-vertical" size={20} color={theme.colors.textSecondary} />
+                  </TouchableOpacity>
+                </View>
               ))
             ) : (
               <View style={[styles.emptyContainer, { backgroundColor: `${theme.colors.card}80` }]}>
-                <Ionicons name="list-outline" size={40} color={theme.colors.textSecondary} />
+                <Ionicons name="calendar-outline" size={40} color={theme.colors.textSecondary} />
                 <Text style={[styles.emptyText, { color: theme.colors.textSecondary }]}>
-                  {t('noMediumGoalsYet')}
+                  {t('noTasksYet')}
                 </Text>
                 <Text style={[styles.emptySubtitle, { color: theme.colors.textTertiary }]}>
-                  {t('tapToAddMediumGoal')}
+                  {t('addTasksToProgress')}
                 </Text>
               </View>
             )}
           </View>
         </View>
 
-        {/* Progress History Section */}
-        {progressHistory.length > 0 && (
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <View>
-                <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
-                  {t('progressHistorySection')}
-                </Text>
-                <Text style={[styles.sectionSubtitle, { color: theme.colors.textSecondary }]}>
-                  {t('progressUpdates')}
-                </Text>
-              </View>
-              
-              <TouchableOpacity
-                style={[styles.actionButton, { borderColor: theme.colors.border }]}
-                onPress={() => showWarning(t('featureInDevelopment'))}
-              >
-                <Ionicons name="add-circle-outline" size={22} color={theme.colors.primary} />
-              </TouchableOpacity>
+        {/* Notes Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <View>
+              <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+                {t('notes')}
+              </Text>
+              <Text style={[styles.sectionSubtitle, { color: theme.colors.textSecondary }]}>
+                {t('notesDescription')}
+              </Text>
             </View>
             
-            <View style={styles.progressHistoryContainer}>
-              {progressHistory.slice(0, 5).map((progress, index) => (
-                <View key={progress.id} style={[
-                  styles.progressHistoryItem,
-                  { backgroundColor: theme.colors.card }
-                ]}>
-                  <View style={styles.progressHistoryHeader}>
-                    <Text style={[styles.progressHistoryValue, { color: statusColor }]}>
-                      {progress.progress_value}%
-                    </Text>
-                    <Text style={[styles.progressHistoryDate, { color: theme.colors.textSecondary }]}>
-                      {formatDate(progress.date)}
-                    </Text>
+            <TouchableOpacity
+              onPress={handleAddNote}
+              style={[styles.addButton, { backgroundColor: theme.colors.primary }]}
+            >
+              <Ionicons name="add-outline" size={22} color="white" />
+              <Text style={styles.addButtonText}>{t('addNote')}</Text>
+            </TouchableOpacity>
+          </View>
+          
+          <View style={styles.notesList}>
+            {notes.length > 0 ? (
+              notes.map(note => (
+                <View 
+                  key={note.id} 
+                  style={[
+                    styles.noteItem,
+                    { backgroundColor: theme.colors.card }
+                  ]}
+                >
+                  <View style={styles.noteHeader}>
+                    {note.user?.avatar && (
+                      <Image 
+                        source={{ uri: note.user.avatar }} 
+                        style={styles.noteAvatar} 
+                      />
+                    )}
+                    <View style={styles.noteMetadata}>
+                      <Text style={[styles.noteAuthor, { color: theme.colors.text }]}>
+                        {note.user?.name || 'Unknown'}
+                      </Text>
+                      <Text style={[styles.noteDate, { color: theme.colors.textSecondary }]}>
+                        {formatDate(note.date)}
+                      </Text>
+                    </View>
                   </View>
                   
-                  {progress.notes && (
-                    <Text style={[styles.progressHistoryNotes, { color: theme.colors.textSecondary }]}>
-                      {progress.notes}
-                    </Text>
-                  )}
+                  <Text style={[styles.noteContent, { color: theme.colors.text }]}>
+                    {note.content}
+                  </Text>
                 </View>
-              ))}
-            </View>
-            
-            {progressHistory.length > 5 && (
-              <TouchableOpacity
-                style={styles.viewMoreButton}
-                onPress={() => showWarning(t('featureInDevelopment'))}
-              >
-                <Text style={[styles.viewMoreText, { color: theme.colors.primary }]}>
-                  {t('viewAll')}
+              ))
+            ) : (
+              <View style={[styles.emptyContainer, { backgroundColor: `${theme.colors.card}80` }]}>
+                <Ionicons name="document-text-outline" size={40} color={theme.colors.textSecondary} />
+                <Text style={[styles.emptyText, { color: theme.colors.textSecondary }]}>
+                  {t('noNotesYet')}
                 </Text>
-                <Ionicons name="chevron-down" size={16} color={theme.colors.primary} />
-              </TouchableOpacity>
+                <Text style={[styles.emptySubtitle, { color: theme.colors.textTertiary }]}>
+                  {t('addNotesToTrack')}
+                </Text>
+              </View>
             )}
           </View>
-        )}
+        </View>
       </ScrollView>
       
       {/* Floating Add Button */}
       <TouchableOpacity
         style={[styles.floatingButton, { backgroundColor: theme.colors.primary }]}
-        onPress={handleAddMediumGoal}
+        onPress={handleAddTask}
       >
-        <Ionicons name="add" size={28} color="white" />
+        <Ionicons name="add" size={24} color="white" />
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -576,16 +690,76 @@ const styles = StyleSheet.create({
   sectionSubtitle: {
     fontSize: 12,
   },
-  actionButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 1,
+  addButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 7,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  addButtonText: {
+    color: 'white',
+    fontSize: 13,
+    fontWeight: '600',
+    marginLeft: 4,
+  },
+  tasksList: {
+    gap: 10,
+  },
+  taskItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 14,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  taskCheckbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: '#A0A0A0',
+    marginRight: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  goalsList: {
-    gap: 10,
+  taskContent: {
+    flex: 1,
+    marginRight: 10,
+  },
+  taskTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    marginBottom: 3,
+  },
+  taskDescription: {
+    fontSize: 13,
+    marginBottom: 5,
+    lineHeight: 18,
+  },
+  taskDate: {
+    fontSize: 11,
+    fontWeight: '500',
+  },
+  taskCompleted: {
+    textDecorationLine: 'line-through',
+    opacity: 0.7,
+  },
+  taskMoreButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   emptyContainer: {
     alignItems: 'center',
@@ -605,42 +779,43 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 6,
   },
-  progressHistoryContainer: {
+  notesList: {
     gap: 10,
   },
-  progressHistoryItem: {
+  noteItem: {
     padding: 14,
     borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
-  progressHistoryHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  progressHistoryValue: {
-    fontSize: 17,
-    fontWeight: '700',
-  },
-  progressHistoryDate: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  progressHistoryNotes: {
-    fontSize: 13,
-    fontStyle: 'italic',
-  },
-  viewMoreButton: {
+  noteHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 10,
-    gap: 5,
-    marginTop: 6,
+    marginBottom: 10,
   },
-  viewMoreText: {
-    fontSize: 13,
+  noteAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    marginRight: 10,
+  },
+  noteMetadata: {
+    flex: 1,
+  },
+  noteAuthor: {
+    fontSize: 14,
     fontWeight: '600',
+  },
+  noteDate: {
+    fontSize: 11,
+    marginTop: 2,
+  },
+  noteContent: {
+    fontSize: 14,
+    lineHeight: 20,
   },
   floatingButton: {
     position: 'absolute',
@@ -693,4 +868,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LongTermGoalDetail;
+export default MediumTermGoalDetail; 

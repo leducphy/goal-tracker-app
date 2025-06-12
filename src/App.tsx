@@ -19,6 +19,8 @@ import CreateGoalScreen from './screens/goals/Create';
 import GoalGroupsScreen from './screens/goals/Groups';
 import LongTermGoalsScreen from './screens/goals/LongTerm';
 import LongTermGoalDetailScreen from './screens/goals/LongTermGoalDetail';
+import MediumGoalFormScreen from './screens/goals/MediumGoalForm';
+import MediumTermGoalDetailScreen from './screens/goals/MediumTermGoalDetail';
 import AccountInfoScreen from './screens/profile/AccountInfo';
 import JournalScreen from './screens/profile/Journal';
 import NewJournalEntryScreen from './screens/profile/NewJournalEntry';
@@ -37,11 +39,13 @@ export type RootStackParamList = {
   [ROUTES.STATS]: undefined;
   [ROUTES.LONG_TERM_GOALS]: undefined;
   [ROUTES.LONG_TERM_GOAL_DETAIL]: { goalId: number; goalName?: string };
+  [ROUTES.MEDIUM_TERM_GOAL_DETAIL]: { goalId: number; goalName?: string };
   [ROUTES.GOAL_GROUPS]: undefined;
   [ROUTES.ACHIEVEMENTS]: undefined;
   [ROUTES.CREATE_GOAL]: undefined;
   [ROUTES.JOURNAL]: undefined;
   [ROUTES.NEW_JOURNAL_ENTRY]: undefined;
+  [ROUTES.MEDIUM_GOAL_FORM]: { longTermGoalId: number; longTermGoalName: string; mode: string; goalId?: number };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -102,6 +106,8 @@ const AppContent = () => {
               <Stack.Screen name={ROUTES.GOAL_GROUPS} component={GoalGroupsScreen} />
               <Stack.Screen name={ROUTES.ACHIEVEMENTS} component={AchievementsScreen} />
               <Stack.Screen name={ROUTES.CREATE_GOAL} component={CreateGoalScreen} />
+              <Stack.Screen name={ROUTES.MEDIUM_GOAL_FORM} component={MediumGoalFormScreen} />
+              <Stack.Screen name={ROUTES.MEDIUM_TERM_GOAL_DETAIL} component={MediumTermGoalDetailScreen} />
               <Stack.Screen name={ROUTES.JOURNAL} component={JournalScreen} />
               <Stack.Screen name={ROUTES.NEW_JOURNAL_ENTRY} component={NewJournalEntryScreen} />
             </>

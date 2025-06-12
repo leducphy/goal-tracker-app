@@ -279,13 +279,83 @@ class GoalsService {
 
   async getGoalProgress(goalId: number): Promise<any[]> {
     try {
-      console.log('🎯 Fetching goal progress:', goalId);
-      
-      // Return empty array for now - implement when progress endpoint is available
-      return [];
+      const response = await httpClient.get<any>(`${API_CONFIG.ENDPOINTS.LONG_TERM_GOALS}/${goalId}/calculate-progress`);
+      return response.data.progress || [];
     } catch (error) {
-      console.error('❌ Error fetching goal progress:', error);
+      console.error('Error getting goal progress:', error);
       return [];
+    }
+  }
+
+  async getMediumGoalById(goalId: number): Promise<MediumTermGoal> {
+    try {
+      console.log('🎯 Fetching medium term goal by ID:', goalId);
+      
+      const response = await httpClient.get<any>(`${API_CONFIG.ENDPOINTS.MEDIUM_TERM_GOALS}/${goalId}`);
+      const data = response.data;
+      
+      return {
+        ...data,
+        type: 'medium_term' as const,
+        status: this.mapApiStatusToGoalStatus(data.status),
+        title: data.name || data.title,
+        progress: data.progress || 0,
+      };
+    } catch (error) {
+      console.error('❌ Error fetching medium term goal:', error);
+      throw error;
+    }
+  }
+
+  async createMediumGoal(goalData: any): Promise<MediumTermGoal> {
+    try {
+      console.log('➕ Creating medium term goal:', goalData);
+      
+      const payload = {
+        ...goalData,
+        type: 'medium_term',
+        status: 'ACTIVE',
+        name: goalData.title,
+      };
+      
+      const response = await httpClient.post<any>(API_CONFIG.ENDPOINTS.MEDIUM_TERM_GOALS, payload);
+      const data = response.data;
+      
+      return {
+        ...data,
+        type: 'medium_term' as const,
+        status: this.mapApiStatusToGoalStatus(data.status),
+        title: data.name || data.title,
+        progress: data.progress || 0,
+      };
+    } catch (error) {
+      console.error('❌ Error creating medium term goal:', error);
+      throw error;
+    }
+  }
+
+  async updateMediumGoal(goalId: number, goalData: any): Promise<MediumTermGoal> {
+    try {
+      console.log('🔄 Updating medium term goal:', goalId, goalData);
+      
+      const payload = {
+        ...goalData,
+        name: goalData.title,
+      };
+      
+      const response = await httpClient.put<any>(`${API_CONFIG.ENDPOINTS.MEDIUM_TERM_GOALS}/${goalId}`, payload);
+      const data = response.data;
+      
+      return {
+        ...data,
+        type: 'medium_term' as const,
+        status: this.mapApiStatusToGoalStatus(data.status),
+        title: data.name || data.title,
+        progress: data.progress || 0,
+      };
+    } catch (error) {
+      console.error('❌ Error updating medium term goal:', error);
+      throw error;
     }
   }
 

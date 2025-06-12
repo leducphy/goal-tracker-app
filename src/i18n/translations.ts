@@ -348,6 +348,33 @@ export const translations = {
     deleteMilestoneSuccess: "Đã xóa mốc quan trọng",
     deleteGoalSuccess: "Đã xóa mục tiêu thành công",
     deleteGoalError: "Không thể xóa mục tiêu. Vui lòng thử lại.",
+    goalProgress: "Tiến độ",
+    addGoal: "Thêm mục tiêu",
+    noMediumGoalsYet: "Chưa có mục tiêu trung hạn",
+    tapToAddMediumGoal: "Nhấn vào nút trên để thêm mục tiêu trung hạn",
+    progressUpdates: "Cập nhật tiến độ",
+    
+    // Medium Goal Form
+    createMediumGoal: "Tạo mục tiêu trung hạn",
+    editMediumGoal: "Chỉnh sửa mục tiêu trung hạn",
+    enterMediumGoalTitle: "Nhập tiêu đề mục tiêu trung hạn",
+    enterMediumGoalDescription: "Nhập mô tả mục tiêu trung hạn (không bắt buộc)",
+    partOf: "Thuộc về mục tiêu:",
+    updateGoal: "Cập nhật mục tiêu",
+    creatingGoal: "Đang tạo mục tiêu...",
+    updatingGoal: "Đang cập nhật mục tiêu...",
+    goalCreated: "Đã tạo mục tiêu thành công",
+    goalUpdated: "Đã cập nhật mục tiêu thành công",
+    createGoalError: "Không thể tạo mục tiêu. Vui lòng thử lại.",
+    updateGoalError: "Không thể cập nhật mục tiêu. Vui lòng thử lại.",
+    titleRequired: "Tiêu đề là bắt buộc",
+    endDateBeforeStart: "Ngày kết thúc không thể trước ngày bắt đầu",
+    timeframe: "Khung thời gian",
+    startDate: "Ngày bắt đầu",
+    targetDate: "Ngày hoàn thành",
+    done: "Xong",
+    publicGoal: "Mục tiêu công khai",
+    publicGoalDescription: "Mục tiêu công khai sẽ được hiển thị với các thành viên khác",
     
     // Navigation & Actions
     navigateToDailyGoals: "Điều hướng đến nhiệm vụ hàng ngày cho",
@@ -399,6 +426,23 @@ export const translations = {
     
     // Loading Error for Long-term Goals
     loadLongTermGoalsError: "Không thể tải mục tiêu dài hạn. Vui lòng thử lại.",
+
+    // Medium Term Goal Detail
+    dailyTasks: "Công việc hàng ngày",
+    dailyTasksDescription: "Các công việc cần hoàn thành",
+    addTask: "Thêm công việc",
+    notes: "Ghi chú",
+    notesDescription: "Theo dõi tiến độ và ghi chú",
+    addNote: "Thêm ghi chú",
+    noTasksYet: "Chưa có công việc nào",
+    addTasksToProgress: "Thêm công việc để theo dõi tiến độ mục tiêu của bạn",
+    noNotesYet: "Chưa có ghi chú nào",
+    addNotesToTrack: "Thêm ghi chú để theo dõi tiến độ mục tiêu của bạn",
+    taskOptions: "Tùy chọn công việc",
+    edit: "Chỉnh sửa",
+    deleteTaskTitle: "Xóa công việc",
+    deleteTaskMessage: "Bạn có chắc chắn muốn xóa công việc này?",
+    deleteTaskSuccess: "Đã xóa công việc thành công",
   },
 
   en: {
@@ -752,6 +796,33 @@ export const translations = {
     deleteMilestoneSuccess: "Milestone deleted successfully",
     deleteGoalSuccess: "Goal deleted successfully",
     deleteGoalError: "Unable to delete goal. Please try again.",
+    goalProgress: "Progress",
+    addGoal: "Add Goal",
+    noMediumGoalsYet: "No medium-term goals yet",
+    tapToAddMediumGoal: "Tap the button above to add a medium-term goal",
+    progressUpdates: "Progress Updates",
+    
+    // Medium Goal Form
+    createMediumGoal: "Create Medium-term Goal",
+    editMediumGoal: "Edit Medium-term Goal",
+    enterMediumGoalTitle: "Enter medium-term goal title",
+    enterMediumGoalDescription: "Enter medium-term goal description (optional)",
+    partOf: "Part of goal:",
+    updateGoal: "Update Goal",
+    creatingGoal: "Creating goal...",
+    updatingGoal: "Updating goal...",
+    goalCreated: "Goal created successfully",
+    goalUpdated: "Goal updated successfully",
+    createGoalError: "Could not create goal. Please try again.",
+    updateGoalError: "Could not update goal. Please try again.",
+    titleRequired: "Title is required",
+    endDateBeforeStart: "End date cannot be before start date",
+    timeframe: "Timeframe",
+    startDate: "Start date",
+    targetDate: "Target date",
+    done: "Done",
+    publicGoal: "Public goal",
+    publicGoalDescription: "Public goals will be visible to other members",
     
     // Navigation & Actions
     navigateToDailyGoals: "Navigate to daily tasks for",
@@ -803,6 +874,23 @@ export const translations = {
     
     // Loading Error for Long-term Goals
     loadLongTermGoalsError: "Unable to load long-term goals. Please try again.",
+
+    // Medium Term Goal Detail
+    dailyTasks: "Daily Tasks",
+    dailyTasksDescription: "Tasks to be completed",
+    addTask: "Add Task",
+    notes: "Notes",
+    notesDescription: "Track progress and notes",
+    addNote: "Add Note",
+    noTasksYet: "No tasks yet",
+    addTasksToProgress: "Add tasks to track your goal progress",
+    noNotesYet: "No notes yet",
+    addNotesToTrack: "Add notes to track your goal progress",
+    taskOptions: "Task options",
+    edit: "Edit",
+    deleteTaskTitle: "Delete Task",
+    deleteTaskMessage: "Are you sure you want to delete this task?",
+    deleteTaskSuccess: "Task deleted successfully",
   },
 };
 
