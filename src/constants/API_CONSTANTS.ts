@@ -17,8 +17,8 @@ export const API_CONFIG = {
     // Goal endpoints
     GOALS: '/goals',
     DAILY_GOALS: '/goals/daily',
-    LONG_TERM_GOALS: '/goals/long-term',
-    MEDIUM_TERM_GOALS: '/goals/medium-term',
+    LONG_TERM: '/goals/long-term',
+    MEDIUM_TERM: '/goals/medium-term',
     SHORT_TERM_GOALS: '/goals/short-term',
     GOAL_DETAIL: '/goals/:id',
     CREATE_GOAL: '/goals',

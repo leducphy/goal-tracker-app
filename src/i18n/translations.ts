@@ -63,7 +63,7 @@ export const translations = {
     goalsLower: "mục tiêu",
 
     // New Goals Screens
-    longTermGoals: "Mục tiêu dài hạn",
+    LongTerm: "Mục tiêu dài hạn",
     mediumTermGoals: "Mục tiêu trung hạn",
     goalGroups: "Nhóm mục tiêu",
     explore: "Khám phá",
@@ -425,7 +425,7 @@ export const translations = {
     progressHistorySection: "Lịch sử tiến độ",
     
     // Loading Error for Long-term Goals
-    loadLongTermGoalsError: "Không thể tải mục tiêu dài hạn. Vui lòng thử lại.",
+    loadLongTermError: "Không thể tải mục tiêu dài hạn. Vui lòng thử lại.",
 
     // Medium Term Goal Detail
     dailyTasks: "Công việc hàng ngày",
@@ -509,7 +509,7 @@ export const translations = {
     goalsLower: "goals",
 
     // New Goals Screens
-    longTermGoals: "Long-term Goals",
+    LongTerm: "Long-term Goals",
     mediumTermGoals: "Medium-term Goals",
     goalGroups: "Goal Groups",
     explore: "Explore",
@@ -873,7 +873,7 @@ export const translations = {
     progressHistorySection: "Progress History",
     
     // Loading Error for Long-term Goals
-    loadLongTermGoalsError: "Unable to load long-term goals. Please try again.",
+    loadLongTermError: "Unable to load long-term goals. Please try again.",
 
     // Medium Term Goal Detail
     dailyTasks: "Daily Tasks",

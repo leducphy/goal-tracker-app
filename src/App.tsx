@@ -15,11 +15,11 @@ import MainNavigation from './navigation/MainNavigation';
 import LoginScreen from './screens/auth/Index';
 import CheckInScreen from './screens/checkin/Index';
 import AchievementsScreen from './screens/goals/Achievements';
-import CreateGoalScreen from './screens/goals/Create';
+import CreateGoalScreen from './screens/goals/LongTermForm';
 import GoalGroupsScreen from './screens/goals/Groups';
-import LongTermGoalsScreen from './screens/goals/LongTerm';
-import LongTermGoalDetailScreen from './screens/goals/LongTermGoalDetail';
-import MediumGoalFormScreen from './screens/goals/MediumGoalForm';
+import LongTermScreen from './screens/goals/LongTerm';
+import MediumTermScreen from './screens/goals/MediumTerm';
+import MediumGoalFormScreen from './screens/goals/MediumTermForm';
 import MediumTermGoalDetailScreen from './screens/goals/MediumTermGoalDetail';
 import AccountInfoScreen from './screens/profile/AccountInfo';
 import JournalScreen from './screens/profile/Journal';
@@ -37,8 +37,8 @@ export type RootStackParamList = {
   [ROUTES.NOTIFICATIONS_SETTINGS]: undefined;
   [ROUTES.CHECK_IN]: undefined;
   [ROUTES.STATS]: undefined;
-  [ROUTES.LONG_TERM_GOALS]: undefined;
-  [ROUTES.LONG_TERM_GOAL_DETAIL]: { goalId: number; goalName?: string };
+  [ROUTES.LONG_TERM]: undefined;
+  [ROUTES.MEDIUM_TERM]: { goalId: number; goalName?: string };
   [ROUTES.MEDIUM_TERM_GOAL_DETAIL]: { goalId: number; goalName?: string };
   [ROUTES.GOAL_GROUPS]: undefined;
   [ROUTES.ACHIEVEMENTS]: undefined;
@@ -101,8 +101,8 @@ const AppContent = () => {
               <Stack.Screen name={ROUTES.NOTIFICATIONS_SETTINGS} component={NotificationsSettingsScreen} />
               <Stack.Screen name={ROUTES.CHECK_IN} component={CheckInScreen} />
               <Stack.Screen name={ROUTES.STATS} component={StatsScreen} />
-              <Stack.Screen name={ROUTES.LONG_TERM_GOALS} component={LongTermGoalsScreen} />
-              <Stack.Screen name={ROUTES.LONG_TERM_GOAL_DETAIL} component={LongTermGoalDetailScreen} />
+              <Stack.Screen name={ROUTES.LONG_TERM} component={LongTermScreen} />
+              <Stack.Screen name={ROUTES.MEDIUM_TERM} component={MediumTermScreen} />
               <Stack.Screen name={ROUTES.GOAL_GROUPS} component={GoalGroupsScreen} />
               <Stack.Screen name={ROUTES.ACHIEVEMENTS} component={AchievementsScreen} />
               <Stack.Screen name={ROUTES.CREATE_GOAL} component={CreateGoalScreen} />

@@ -54,7 +54,7 @@ export interface DailyGoalsResponse extends GoalsResponse {
   goals: DailyGoal[];
 }
 
-export interface LongTermGoalsResponse extends GoalsResponse {
+export interface LongTermResponse extends GoalsResponse {
   goals: LongTermGoal[];
 }
 
@@ -88,7 +88,7 @@ class GoalsService {
     }
   }
 
-  async getLongTermGoals(status?: GoalStatusFilter): Promise<LongTermGoalsResponse> {
+  async getLongTerm(status?: GoalStatusFilter): Promise<LongTermResponse> {
     try {
       console.log('🎯 Fetching long term goals, status filter:', status);
       
@@ -97,7 +97,7 @@ class GoalsService {
         params.status = this.mapGoalStatusToApi(status);
       }
 
-      const response = await httpClient.get<any>(API_CONFIG.ENDPOINTS.LONG_TERM_GOALS, params);
+      const response = await httpClient.get<any>(API_CONFIG.ENDPOINTS.LONG_TERM, params);
       const data = response.data;
       
       console.log('🎯 Raw API response:', data);
@@ -137,7 +137,7 @@ class GoalsService {
         params.status = this.mapGoalStatusToApi(status as GoalStatus);
       }
 
-      const response = await httpClient.get<any>(API_CONFIG.ENDPOINTS.MEDIUM_TERM_GOALS, params);
+      const response = await httpClient.get<any>(API_CONFIG.ENDPOINTS.MEDIUM_TERM, params);
       const data = response.data;
       
       const goals = (data.goals || data || []).map((goal: any) => ({
@@ -246,7 +246,7 @@ class GoalsService {
     try {
       console.log('🎯 Fetching goal by ID:', goalId);
       
-      const response = await httpClient.get<any>(`${API_CONFIG.ENDPOINTS.LONG_TERM_GOALS}/${goalId}`);
+      const response = await httpClient.get<any>(`${API_CONFIG.ENDPOINTS.LONG_TERM}/${goalId}`);
       const data = response.data;
       
       return {
@@ -279,7 +279,7 @@ class GoalsService {
 
   async getGoalProgress(goalId: number): Promise<any[]> {
     try {
-      const response = await httpClient.get<any>(`${API_CONFIG.ENDPOINTS.LONG_TERM_GOALS}/${goalId}/calculate-progress`);
+      const response = await httpClient.get<any>(`${API_CONFIG.ENDPOINTS.LONG_TERM}/${goalId}/calculate-progress`);
       return response.data.progress || [];
     } catch (error) {
       console.error('Error getting goal progress:', error);
@@ -291,7 +291,7 @@ class GoalsService {
     try {
       console.log('🎯 Fetching medium term goal by ID:', goalId);
       
-      const response = await httpClient.get<any>(`${API_CONFIG.ENDPOINTS.MEDIUM_TERM_GOALS}/${goalId}`);
+      const response = await httpClient.get<any>(`${API_CONFIG.ENDPOINTS.MEDIUM_TERM}/${goalId}`);
       const data = response.data;
       
       return {
@@ -318,7 +318,7 @@ class GoalsService {
         name: goalData.title,
       };
       
-      const response = await httpClient.post<any>(API_CONFIG.ENDPOINTS.MEDIUM_TERM_GOALS, payload);
+      const response = await httpClient.post<any>(API_CONFIG.ENDPOINTS.MEDIUM_TERM, payload);
       const data = response.data;
       
       return {
@@ -343,7 +343,7 @@ class GoalsService {
         name: goalData.title,
       };
       
-      const response = await httpClient.put<any>(`${API_CONFIG.ENDPOINTS.MEDIUM_TERM_GOALS}/${goalId}`, payload);
+      const response = await httpClient.put<any>(`${API_CONFIG.ENDPOINTS.MEDIUM_TERM}/${goalId}`, payload);
       const data = response.data;
       
       return {
@@ -387,7 +387,7 @@ class GoalsService {
     try {
       console.log('🗑️ Deleting goal:', goalId);
       
-      await httpClient.delete(`${API_CONFIG.ENDPOINTS.LONG_TERM_GOALS}/${goalId}`);
+      await httpClient.delete(`${API_CONFIG.ENDPOINTS.LONG_TERM}/${goalId}`);
       return { success: true };
     } catch (error) {
       console.error('❌ Error deleting goal:', error);

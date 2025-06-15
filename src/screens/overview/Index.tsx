@@ -89,7 +89,7 @@ const OverviewScreen: React.FC = () => {
       category: 'Công việc',
       categoryType: 'work',
       deadline: '15/05/2025',
-      route: ROUTES.LONG_TERM_GOALS,
+      route: ROUTES.LONG_TERM,
     },
     {
       id: '2',
@@ -445,7 +445,7 @@ const OverviewScreen: React.FC = () => {
             title="Mục tiêu dài hạn"
             value="5"
             subtitle="Xem chi tiết"
-            onPress={() => navigation.navigate(ROUTES.LONG_TERM_GOALS)}
+            onPress={() => navigation.navigate(ROUTES.LONG_TERM)}
           />
           <View style={styles.statSpacer} />
           <StatCard

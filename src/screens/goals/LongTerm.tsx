@@ -15,12 +15,12 @@ import { useToast } from '../../components/ToastProvider';
 import { SwipeableGoalItem, Goal } from '../../components/goals';
 import { ScrollContext } from '../../navigation/MainNavigation';
 
-type LongTermGoalsScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
+type LongTermScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-const LongTermGoalsScreen: React.FC = () => {
+const LongTermScreen: React.FC = () => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const navigation = useNavigation<LongTermGoalsScreenNavigationProp>();
+  const navigation = useNavigation<LongTermScreenNavigationProp>();
   const { showSuccess, showError } = useToast();
   
   const { scrollY, setScrolling } = useContext(ScrollContext);
@@ -45,7 +45,7 @@ const LongTermGoalsScreen: React.FC = () => {
   const fetchGoals = useCallback(async (statusFilter?: GoalStatusFilter) => {
     try {
       console.log('🎯 Fetching long term goals with filter:', statusFilter);
-      const response = await goalsService.getLongTermGoals(statusFilter);
+      const response = await goalsService.getLongTerm(statusFilter);
       
       // Kiểm tra component còn mounted không trước khi cập nhật state
       if (isMounted.current) {
@@ -56,7 +56,7 @@ const LongTermGoalsScreen: React.FC = () => {
       // Kiểm tra component còn mounted không trước khi hiển thị lỗi
       if (isMounted.current) {
         console.error('❌ Error fetching long term goals:', error);
-        showError(t('loadLongTermGoalsError'));
+        showError(t('loadLongTermError'));
       }
     }
   }, []); // Không phụ thuộc vào t và showError
@@ -103,7 +103,7 @@ const LongTermGoalsScreen: React.FC = () => {
 
   const handleGoalPress = useCallback((goal: Goal) => {
     const longTermGoal = goal as LongTermGoal;
-    navigation.navigate(ROUTES.LONG_TERM_GOAL_DETAIL, { 
+    navigation.navigate(ROUTES.MEDIUM_TERM, { 
       goalId: longTermGoal.id,
       goalName: longTermGoal.title || longTermGoal.name 
     });
@@ -115,7 +115,7 @@ const LongTermGoalsScreen: React.FC = () => {
 
   const handleUpdateGoal = useCallback((goal: Goal) => {
     const longTermGoal = goal as LongTermGoal;
-    navigation.navigate(ROUTES.LONG_TERM_GOAL_DETAIL, { 
+    navigation.navigate(ROUTES.MEDIUM_TERM, { 
       goalId: longTermGoal.id,
       goalName: longTermGoal.title || longTermGoal.name
     });
@@ -211,7 +211,7 @@ const LongTermGoalsScreen: React.FC = () => {
         {/* Header */}
         <View style={styles.header}>
           <Text style={[styles.headerTitle, { color: theme.colors.text }]}>
-            {t('longTermGoals')}
+            {t('LongTerm')}
           </Text>
           <TouchableOpacity
             style={[styles.headerButton, { backgroundColor: `${theme.colors.primary}15` }]}
@@ -454,4 +454,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LongTermGoalsScreen; 
+export default LongTermScreen; 

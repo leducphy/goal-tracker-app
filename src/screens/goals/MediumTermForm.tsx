@@ -10,13 +10,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   Switch,
-  Alert,
   ToastAndroid,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { RootStackParamList } from '../../App';
@@ -25,6 +23,7 @@ import useTranslation from '../../i18n';
 import { useToast } from '../../components/ToastProvider';
 import { goalsService } from '../../api/services/goalsService';
 import { ROUTES } from '../../constants/ROUTES';
+import DateRangeSelector from '../../components/DateRangeSelector';
 
 type MediumGoalFormRouteProp = RouteProp<RootStackParamList, typeof ROUTES.MEDIUM_GOAL_FORM>;
 type MediumGoalFormNavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -57,8 +56,6 @@ const MediumGoalForm: React.FC = () => {
   
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
-  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
 
   useEffect(() => {
     console.log('MediumGoalForm mounted with params:', route.params);
@@ -69,6 +66,8 @@ const MediumGoalForm: React.FC = () => {
   }, [isEditMode, goalId]);
 
   const loadGoalData = async () => {
+    if (!goalId) return;
+    
     try {
       setLoading(true);
       const goalData = await goalsService.getMediumGoalById(goalId);
@@ -78,7 +77,7 @@ const MediumGoalForm: React.FC = () => {
         description: goalData.description || '',
         startDate: goalData.startDate ? new Date(goalData.startDate) : new Date(),
         endDate: goalData.endDate ? new Date(goalData.endDate) : null,
-        isPublic: goalData.isPublic || false,
+        isPublic: false,
       });
     } catch (error) {
       console.error('Error loading goal data:', error);
@@ -123,7 +122,7 @@ const MediumGoalForm: React.FC = () => {
         );
       }
 
-      if (isEditMode) {
+      if (isEditMode && goalId) {
         await goalsService.updateMediumGoal(goalId, goalData);
         showSuccess(t('goalUpdated'));
       } else {
@@ -140,35 +139,19 @@ const MediumGoalForm: React.FC = () => {
     }
   };
 
-  const handleChangeDate = (event: any, selectedDate?: Date, dateType?: 'start' | 'end') => {
-    if (event.type === 'dismissed') {
-      if (Platform.OS === 'android') {
-        setShowStartDatePicker(false);
-        setShowEndDatePicker(false);
-      }
-      return;
-    }
-
-    const currentDate = selectedDate || (dateType === 'start' ? formData.startDate : formData.endDate);
-    
-    if (Platform.OS === 'android') {
-      setShowStartDatePicker(false);
-      setShowEndDatePicker(false);
-    }
-    
-    if (dateType === 'start') {
-      setFormData({ ...formData, startDate: currentDate });
-    } else {
-      setFormData({ ...formData, endDate: currentDate });
-    }
+  const handleDateRangeChange = (startDate: Date, endDate: Date) => {
+    setFormData({
+      ...formData,
+      startDate,
+      endDate
+    });
   };
 
-  const formatDate = (date: Date | null) => {
-    if (!date) return t('notSet');
-    return date.toLocaleDateString('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
+  const handleClearDates = () => {
+    setFormData({
+      ...formData,
+      startDate: null,
+      endDate: null
     });
   };
 
@@ -222,7 +205,7 @@ const MediumGoalForm: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.parentGoalContainer, { backgroundColor: theme.colors.cardBackground }]}>
+        <View style={[styles.parentGoalContainer, { backgroundColor: theme.colors.card }]}>
           <Ionicons name="git-branch-outline" size={20} color={theme.colors.textSecondary} />
           <Text style={[styles.parentGoalText, { color: theme.colors.textSecondary }]}>
             {t('partOf')} <Text style={{ fontWeight: '600', color: theme.colors.text }}>{longTermGoalName}</Text>
@@ -242,7 +225,7 @@ const MediumGoalForm: React.FC = () => {
               style={[
                 styles.input,
                 { 
-                  backgroundColor: theme.colors.cardBackground,
+                  backgroundColor: theme.colors.card,
                   color: theme.colors.text,
                   borderColor: theme.colors.border
                 }
@@ -261,7 +244,7 @@ const MediumGoalForm: React.FC = () => {
               style={[
                 styles.textArea,
                 { 
-                  backgroundColor: theme.colors.cardBackground,
+                  backgroundColor: theme.colors.card,
                   color: theme.colors.text,
                   borderColor: theme.colors.border
                 }
@@ -283,101 +266,15 @@ const MediumGoalForm: React.FC = () => {
               {t('timeframe')}
             </Text>
             
-            <TouchableOpacity 
-              style={[
-                styles.datePickerButton,
-                { backgroundColor: theme.colors.cardBackground, borderColor: theme.colors.border }
-              ]}
-              onPress={() => setShowStartDatePicker(true)}
-            >
-              <View style={styles.datePickerButtonContent}>
-                <Ionicons name="calendar-outline" size={20} color={theme.colors.primary} />
-                <Text style={[styles.datePickerLabel, { color: theme.colors.text }]}>
-                  {t('startDate')}
-                </Text>
-              </View>
-              <Text style={[styles.dateText, { color: theme.colors.text }]}>
-                {formatDate(formData.startDate)}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={[
-                styles.datePickerButton,
-                { backgroundColor: theme.colors.cardBackground, borderColor: theme.colors.border }
-              ]}
-              onPress={() => setShowEndDatePicker(true)}
-            >
-              <View style={styles.datePickerButtonContent}>
-                <Ionicons name="flag-outline" size={20} color={theme.colors.primary} />
-                <Text style={[styles.datePickerLabel, { color: theme.colors.text }]}>
-                  {t('targetDate')}
-                </Text>
-              </View>
-              <Text style={[styles.dateText, { color: theme.colors.text }]}>
-                {formatDate(formData.endDate)}
-              </Text>
-            </TouchableOpacity>
-
-            {Platform.OS === 'ios' && showStartDatePicker && (
-              <View style={[styles.datePickerContainer, { backgroundColor: theme.colors.cardBackground }]}>
-                <View style={[styles.datePickerHeader, { borderBottomColor: theme.colors.border }]}>
-                  <TouchableOpacity onPress={() => setShowStartDatePicker(false)}>
-                    <Text style={{ color: theme.colors.primary }}>{t('cancel')}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => setShowStartDatePicker(false)}>
-                    <Text style={{ color: theme.colors.primary, fontWeight: '600' }}>{t('done')}</Text>
-                  </TouchableOpacity>
-                </View>
-                <DateTimePicker
-                  value={formData.startDate || new Date()}
-                  mode="date"
-                  display="spinner"
-                  onChange={(e, date) => handleChangeDate(e, date, 'start')}
-                  textColor={theme.colors.text}
-                />
-              </View>
-            )}
-
-            {Platform.OS === 'ios' && showEndDatePicker && (
-              <View style={[styles.datePickerContainer, { backgroundColor: theme.colors.cardBackground }]}>
-                <View style={[styles.datePickerHeader, { borderBottomColor: theme.colors.border }]}>
-                  <TouchableOpacity onPress={() => setShowEndDatePicker(false)}>
-                    <Text style={{ color: theme.colors.primary }}>{t('cancel')}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => setShowEndDatePicker(false)}>
-                    <Text style={{ color: theme.colors.primary, fontWeight: '600' }}>{t('done')}</Text>
-                  </TouchableOpacity>
-                </View>
-                <DateTimePicker
-                  value={formData.endDate || new Date()}
-                  mode="date"
-                  display="spinner"
-                  onChange={(e, date) => handleChangeDate(e, date, 'end')}
-                  minimumDate={formData.startDate || undefined}
-                  textColor={theme.colors.text}
-                />
-              </View>
-            )}
-
-            {Platform.OS === 'android' && showStartDatePicker && (
-              <DateTimePicker
-                value={formData.startDate || new Date()}
-                mode="date"
-                display="default"
-                onChange={(e, date) => handleChangeDate(e, date, 'start')}
-              />
-            )}
-
-            {Platform.OS === 'android' && showEndDatePicker && (
-              <DateTimePicker
-                value={formData.endDate || new Date()}
-                mode="date"
-                display="default"
-                onChange={(e, date) => handleChangeDate(e, date, 'end')}
-                minimumDate={formData.startDate || undefined}
-              />
-            )}
+            <DateRangeSelector
+              startDate={formData.startDate}
+              endDate={formData.endDate}
+              onDateRangeChange={handleDateRangeChange}
+              onClear={handleClearDates}
+              label="Thời gian"
+              placeholder="Chọn khoảng thời gian"
+              minDate={new Date().toISOString().split('T')[0]}
+            />
           </View>
 
           <View style={[styles.divider, { backgroundColor: theme.colors.border + '20' }]} />
@@ -396,7 +293,7 @@ const MediumGoalForm: React.FC = () => {
                 value={formData.isPublic}
                 onValueChange={(value) => setFormData({ ...formData, isPublic: value })}
                 trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
-                thumbColor={Platform.OS === 'ios' ? '#FFFFFF' : formData.isPublic ? theme.colors.primaryDark : '#f4f3f4'}
+                thumbColor={Platform.OS === 'ios' ? '#FFFFFF' : formData.isPublic ? theme.colors.primary : '#f4f3f4'}
               />
             </View>
           </View>
@@ -520,40 +417,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 8,
-  },
-  datePickerButton: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 14,
-    borderRadius: 8,
-    borderWidth: 1,
-    marginBottom: 16,
-  },
-  datePickerButtonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  datePickerLabel: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  dateText: {
-    fontSize: 16,
-  },
-  datePickerContainer: {
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-    marginHorizontal: -20,
-  },
-  datePickerHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    borderBottomWidth: 1,
   },
   switchRow: {
     flexDirection: 'row',

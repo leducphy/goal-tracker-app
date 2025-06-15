@@ -45,7 +45,7 @@ const ProgressChart: React.FC<ProgressChartProps> = ({
         strokeWidth: 2,
       }] : []),
     ],
-    legend: [t('longTermGoals'), t('mediumTermGoals')],
+    legend: [t('LongTerm'), t('mediumTermGoals')],
   };
   
   const chartConfig = {
@@ -84,7 +84,7 @@ const ProgressChart: React.FC<ProgressChartProps> = ({
       <View style={styles.legendContainer}>
         <View style={styles.legendItem}>
           <View style={[styles.legendColor, { backgroundColor: theme.colors.primary }]} />
-          <Text style={[styles.legendText, { color: theme.colors.textSecondary }]}>{t('longTermGoals')}</Text>
+          <Text style={[styles.legendText, { color: theme.colors.textSecondary }]}>{t('LongTerm')}</Text>
         </View>
         
         {shortTermData && shortTermData.length > 0 && (

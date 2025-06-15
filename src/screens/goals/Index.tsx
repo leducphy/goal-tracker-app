@@ -27,8 +27,8 @@ const GoalsScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
   const { width } = useWindowDimensions();
 
-  const goToLongTermGoals = () => {
-    navigation.navigate(ROUTES.LONG_TERM_GOALS);
+  const goToLongTerm = () => {
+    navigation.navigate(ROUTES.LONG_TERM);
   };
 
   const goToGoalGroups = () => {
@@ -90,7 +90,7 @@ const GoalsScreen: React.FC = () => {
           
           <TouchableOpacity 
             style={styles.cardShadow}
-            onPress={goToLongTermGoals}
+            onPress={goToLongTerm}
             activeOpacity={0.8}
           >
             <LinearGradient

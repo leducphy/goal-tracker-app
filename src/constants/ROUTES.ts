@@ -22,8 +22,8 @@ export const ROUTES = {
   STATS: 'Stats',
 
   // Goal screens
-  LONG_TERM_GOALS: 'LongTermGoals',
-  LONG_TERM_GOAL_DETAIL: 'LongTermGoalDetail',
+  LONG_TERM: 'LongTerm',
+  MEDIUM_TERM: 'MediumTerm',
   MEDIUM_TERM_GOAL_DETAIL: 'MediumTermGoalDetail',
   GOAL_GROUPS: 'GoalGroups',
   ACHIEVEMENTS: 'Achievements',

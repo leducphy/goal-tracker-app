@@ -1,5 +1,4 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useState } from 'react';
@@ -12,11 +11,12 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    View
+    View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { RootStackParamList } from '../../App';
+import DateRangeSelector from '../../components/DateRangeSelector';
 import useTranslation from '../../i18n';
 import useTheme from '../../styles/theme';
 
@@ -29,16 +29,17 @@ interface CategoryOption {
   color: string;
 }
 
-const CreateGoalScreen: React.FC = () => {
+const LongTermGoalForm: React.FC = () => {
   const theme = useTheme();
   const { t } = useTranslation();
   const navigation = useNavigation<CreateGoalScreenNavigationProp>();
   
+  // Form states
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [deadline, setDeadline] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const [reminder, setReminder] = useState(false);
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
   
@@ -69,15 +70,14 @@ const CreateGoalScreen: React.FC = () => {
     navigation.goBack();
   };
   
-  const formatDate = (date: Date) => {
-    return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+  const handleDateRangeChange = (start: Date, end: Date) => {
+    setStartDate(start);
+    setEndDate(end);
   };
 
-  const onDateChange = (event: any, selectedDate?: Date) => {
-    setShowDatePicker(false);
-    if (selectedDate) {
-      setDeadline(selectedDate);
-    }
+  const handleClearDates = () => {
+    setStartDate(null);
+    setEndDate(null);
   };
   
   return (
@@ -189,38 +189,12 @@ const CreateGoalScreen: React.FC = () => {
           <View style={styles.formSection}>
             <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Thời gian & mức độ ưu tiên</Text>
             
-            <View style={styles.formGroup}>
-              <View style={styles.labelContainer}>
-                <Text style={[styles.inputLabel, { color: theme.colors.textSecondary }]}>Ngày hạn</Text>
-                <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-                  <Text style={[styles.changeDateText, { color: theme.colors.primary }]}>Thay đổi</Text>
-                </TouchableOpacity>
-              </View>
-              
-              <TouchableOpacity 
-                style={[
-                  styles.datePickerButton, 
-                  { 
-                    backgroundColor: theme.colors.card,
-                    borderColor: theme.colors.border,
-                  }
-                ]}
-                onPress={() => setShowDatePicker(true)}
-              >
-                <Ionicons name="calendar" size={20} color={theme.colors.primary} />
-                <Text style={[styles.dateText, { color: theme.colors.text }]}>{formatDate(deadline)}</Text>
-              </TouchableOpacity>
-              
-              {showDatePicker && (
-                <DateTimePicker
-                  value={deadline}
-                  mode="date"
-                  display="default"
-                  onChange={onDateChange}
-                  minimumDate={new Date()}
-                />
-              )}
-            </View>
+            <DateRangeSelector
+              startDate={startDate}
+              endDate={endDate}
+              onDateRangeChange={handleDateRangeChange}
+              onClear={handleClearDates}
+            />
             
             <View style={styles.formGroup}>
               <View style={styles.labelContainer}>
@@ -392,21 +366,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
   },
-  changeDateText: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  datePickerButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-  },
-  dateText: {
-    marginLeft: 8,
-    fontSize: 15,
-  },
   switchContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -443,4 +402,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CreateGoalScreen; 
+export default LongTermGoalForm; 

@@ -77,8 +77,8 @@ const formatDateRelative = (dateString: string, t: any) => {
   }
 };
 
-type LongTermGoalDetailRouteProp = RouteProp<RootStackParamList, 'LongTermGoalDetail'>;
-type LongTermGoalDetailNavigationProp = NativeStackNavigationProp<RootStackParamList>;
+type MediumTermRouteProp = RouteProp<RootStackParamList, 'MediumTerm'>;
+type MediumTermNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 interface GoalMilestone {
   id: number;
@@ -96,9 +96,9 @@ interface GoalProgress {
   notes?: string;
 }
 
-const LongTermGoalDetail: React.FC = () => {
-  const route = useRoute<LongTermGoalDetailRouteProp>();
-  const navigation = useNavigation<LongTermGoalDetailNavigationProp>();
+const MediumTerm: React.FC = () => {
+  const route = useRoute<MediumTermRouteProp>();
+  const navigation = useNavigation<MediumTermNavigationProp>();
   const { goalId } = route.params;
   
   const theme = useTheme();
@@ -693,4 +693,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LongTermGoalDetail;
+export default MediumTerm;

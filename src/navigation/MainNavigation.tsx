@@ -9,7 +9,7 @@ import { ROUTES } from '../constants/ROUTES';
 import { useAppContext } from '../contexts/AppContext';
 import useTranslation from '../i18n';
 
-import LongTermGoalsScreen from '../screens/goals/LongTerm';
+import LongTermScreen from '../screens/goals/LongTerm';
 import OverviewScreen from '../screens/overview/Index';
 import ProfileScreen from '../screens/profile/Index';
 import SocialScreen from '../screens/social/Index';
@@ -83,7 +83,7 @@ const MainNavigation = () => {
       icon: require('../assets/images/icon-bottom-tab/home.png'),
     },
     {
-      key: ROUTES.LONG_TERM_GOALS,
+      key: ROUTES.LONG_TERM,
       label: t('goals'),
       icon: require('../assets/images/icon-bottom-tab/target.png'),
     },
@@ -124,7 +124,7 @@ const MainNavigation = () => {
       case ROUTES.OVERVIEW:
         // Handle Home tab navigation
         break;
-      case ROUTES.LONG_TERM_GOALS:
+      case ROUTES.LONG_TERM:
         // Handle Goals tab navigation
         break;
       case ROUTES.FINANCE:
@@ -152,7 +152,7 @@ const MainNavigation = () => {
           { backgroundColor: theme.colors.background } // Thêm background color để tránh nháy trắng
         ]}>
           {activeTab === 0 && <OverviewScreen />}
-          {activeTab === 1 && <LongTermGoalsScreen />}
+          {activeTab === 1 && <LongTermScreen />}
           {activeTab === 2 && <FinanceNavigation />}
           {activeTab === 3 && <SocialScreen />}
           {activeTab === 4 && <ProfileScreen />}
