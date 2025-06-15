@@ -8,19 +8,14 @@ import CurvedTabBar from 'react-native-curved-tab-bar';
 import { ROUTES } from '../constants/ROUTES';
 import { useAppContext } from '../contexts/AppContext';
 import useTranslation from '../i18n';
+import { ScrollContext } from '../contexts/ScrollContext';
 
-import LongTermScreen from '../screens/goals/LongTerm';
 import OverviewScreen from '../screens/overview/Index';
 import ProfileScreen from '../screens/profile/Index';
 import SocialScreen from '../screens/social/Index';
 import useTheme from '../styles/theme';
 import FinanceNavigation from './FinanceNavigation';
-
-// Tạo một context toàn cục để theo dõi trạng thái scroll
-export const ScrollContext = React.createContext({
-  scrollY: new Animated.Value(0),
-  setScrolling: (isScrolling: boolean) => {},
-});
+import LongTermScreen from '../screens/goals/LongTerm';
 
 // Kích thước của bottom bar
 const BOTTOM_BAR_HEIGHT = 70;

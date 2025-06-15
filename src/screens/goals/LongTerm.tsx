@@ -13,7 +13,7 @@ import useTheme from '../../styles/theme';
 import { goalsService, LongTermGoal, GoalStatusFilter } from '../../api/services/goalsService';
 import { useToast } from '../../components/ToastProvider';
 import { SwipeableGoalItem, Goal } from '../../components/goals';
-import { ScrollContext } from '../../navigation/MainNavigation';
+import { ScrollContext } from '../../contexts/ScrollContext';
 
 type LongTermScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 

@@ -15,7 +15,7 @@ import useTheme from '../../styles/theme';
 
 import { RootStackParamList } from '../../App';
 import { ROUTES } from '../../constants/ROUTES';
-import { ScrollContext } from '../../navigation/MainNavigation';
+import { ScrollContext } from '../../contexts/ScrollContext';
 
 type OverviewScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
