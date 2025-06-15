@@ -1,7 +1,5 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { StyleSheet, View, Platform, Text, Animated, Image, Dimensions } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { StyleSheet, View, Platform, Animated, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CurvedTabBar from 'react-native-curved-tab-bar';
 
@@ -112,25 +110,6 @@ const MainNavigation = () => {
         setActiveTab(index);
         fadeIn();
       }, 50); // Giảm thời gian chờ để chuyển tab nhanh hơn
-    }
-    
-    // Navigate to the appropriate screen based on tab key
-    switch (tab.key) {
-      case ROUTES.OVERVIEW:
-        // Handle Home tab navigation
-        break;
-      case ROUTES.LONG_TERM:
-        // Handle Goals tab navigation
-        break;
-      case ROUTES.FINANCE:
-        // Handle Finance tab navigation
-        break;
-      case ROUTES.SOCIAL:
-        // Handle Social tab navigation
-        break;
-      case ROUTES.PROFILE:
-        // Handle Profile tab navigation
-        break;
     }
   };
 

@@ -40,6 +40,4 @@ export const ROUTES = {
   // Journal screens
   JOURNAL: 'Journal',
   NEW_JOURNAL_ENTRY: 'NewJournalEntry',
-} as const;
-
-export default ROUTES; 
+} as const; 
