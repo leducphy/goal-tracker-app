@@ -20,7 +20,7 @@ import { useToast } from '../../components/ToastProvider';
 import { goalsService, MediumTermGoal } from '../../api/services/goalsService';
 import useTranslation from '../../i18n';
 import useTheme from '../../styles/theme';
-import CircularProgress from '../../components/common/CircularProgress';
+import CircularProgress from '../../components/goals/CircularProgress';
 
 // Utility functions
 const getStatusColor = (status: string) => {
