@@ -10,7 +10,7 @@ export const API_CONFIG = {
   ENDPOINTS: {
     // Auth endpoints
     LOGIN: '/auth/authenticate',
-    REFRESH_TOKEN: '/auth/refresh',
+    REFRESH_TOKEN: '/auth/refresh-token',
     LOGOUT: '/auth/logout',
     REGISTER: '/auth/register',
     

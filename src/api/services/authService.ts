@@ -8,10 +8,11 @@ export interface LoginRequest {
 }
 
 export interface RefreshTokenResponse {
+  user: UserData;
   access_token: string;
-  refresh_token?: string;
+  refresh_token: string;
   access_token_expire: number;
-  refresh_token_expire?: number;
+  refresh_token_expire: number;
 }
 
 class AuthService {
@@ -40,6 +41,11 @@ class AuthService {
 
       const data: LoginResponse = await response.json();
       console.log('🔐 Login successful for user:', data.user.email);
+      console.log('🔐 Login response data:', data);
+      console.log('🔐 Login response data access_token:', data.access_token);
+      console.log('🔐 Login response data refresh_token:', data.refresh_token);
+      console.log('🔐 Login response data access_token_expire:', data.access_token_expire);
+      console.log('🔐 Login response data refresh_token_expire:', data.refresh_token_expire);
 
       // Store tokens and user data securely
       await tokenStorage.setTokensFromLogin(data);
@@ -71,8 +77,9 @@ class AuthService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${refreshToken}`,
+          'Accept': '*/*',
         },
+        body: JSON.stringify({ refreshToken }),
       });
 
       console.log('🔄 Refresh URL:', refreshUrl);
@@ -85,15 +92,20 @@ class AuthService {
 
       const data: RefreshTokenResponse = await response.json();
       console.log('✅ Token refresh successful');
+      console.log('✅ Refresh response data:', data);
 
-      // Update stored tokens
-      await tokenStorage.setAccessToken(data.access_token);
+      // Update stored tokens and user data
       await tokenStorage.setTokens({
         accessToken: data.access_token,
-        refreshToken: data.refresh_token || refreshToken,
+        refreshToken: data.refresh_token,
         expiresAt: data.access_token_expire,
-        refreshExpiresAt: data.refresh_token_expire || await tokenStorage.getRefreshTokenExpiry() || 0,
+        refreshExpiresAt: data.refresh_token_expire,
       });
+
+      // Update user data if available
+      if (data.user) {
+        await tokenStorage.setUserData(data.user);
+      }
 
       return {
         data,

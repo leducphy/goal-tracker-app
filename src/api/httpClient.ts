@@ -105,7 +105,8 @@ class HttpClient {
 
   private async makeRequest<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    retryCount: number = 0
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
     const headers = await this.getAuthHeaders();
@@ -131,6 +132,23 @@ class HttpClient {
       });
 
       clearTimeout(timeoutId);
+
+      // Handle 401 Unauthorized - attempt token refresh
+      if (response.status === API_STATUS_CODES.UNAUTHORIZED && retryCount === 0) {
+        console.log('🔄 Received 401 Unauthorized, attempting to refresh token...');
+        
+        // Attempt to refresh the token
+        const refreshed = await tokenStorage.refreshTokenIfExpired();
+        
+        if (refreshed) {
+          console.log('✅ Token refreshed successfully, retrying request');
+          // Retry the request with the new token
+          return this.makeRequest<T>(endpoint, options, retryCount + 1);
+        } else {
+          console.log('❌ Token refresh failed, throwing unauthorized error');
+          throw new HttpError(API_ERROR_MESSAGES.UNAUTHORIZED, API_STATUS_CODES.UNAUTHORIZED);
+        }
+      }
 
       const result = await this.handleResponse<T>(response);
       

@@ -36,20 +36,23 @@ class TokenStorage {
     try {
       const token = await SecureStore.getItemAsync(TOKEN_KEYS.ACCESS_TOKEN);
       
-      // Check if token is expired
-      if (token) {
-        const expiryTime = await this.getTokenExpiry();
-        if (expiryTime && Date.now() >= expiryTime) {
-          console.log('🔑 Access token expired, attempting refresh...');
-          
-          // Try to refresh token
-          const refreshed = await this.refreshTokenIfExpired();
-          if (refreshed) {
-            return await SecureStore.getItemAsync(TOKEN_KEYS.ACCESS_TOKEN);
-          } else {
-            await this.clearTokens();
-            return null;
-          }
+      // Check if token exists
+      if (!token) {
+        return null;
+      }
+      
+      // Check if token is expired or will expire soon (30 seconds buffer)
+      const expiryTime = await this.getTokenExpiry();
+      if (expiryTime && Date.now() + 30000 >= expiryTime) {
+        console.log('🔑 Access token expired or expiring soon, attempting refresh...');
+        
+        // Try to refresh token
+        const refreshed = await this.refreshTokenIfExpired();
+        if (refreshed) {
+          return await SecureStore.getItemAsync(TOKEN_KEYS.ACCESS_TOKEN);
+        } else {
+          await this.clearTokens();
+          return null;
         }
       }
       
@@ -256,12 +259,17 @@ class TokenStorage {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${refreshToken}`,
+          'Accept': '*/*',
         },
+        body: JSON.stringify({ refreshToken }),
       });
 
+      console.log('🔄 Refresh token response:', response);
+      console.log('🔄 Refresh token response status:', refreshUrl);
       if (response.ok) {
         const data = await response.json();
+        
+        console.log('✅ Token refresh response:', data);
         
         // Update access token
         await Promise.all([
@@ -275,6 +283,11 @@ class TokenStorage {
             SecureStore.setItemAsync(TOKEN_KEYS.REFRESH_TOKEN, data.refresh_token),
             SecureStore.setItemAsync(TOKEN_KEYS.REFRESH_TOKEN_EXPIRY, data.refresh_token_expire.toString()),
           ]);
+        }
+        
+        // Update user data if provided
+        if (data.user) {
+          await this.setUserData(data.user);
         }
         
         console.log('✅ Token refreshed successfully');
