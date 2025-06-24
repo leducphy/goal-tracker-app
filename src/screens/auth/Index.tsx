@@ -20,6 +20,7 @@ import {
 } from 'react-native';
 
 import { RootStackParamList } from '../../App';
+import { ROUTES } from '../../constants/ROUTES';
 import { useAppContext } from '../../contexts/AppContext';
 import { useAuth } from '../../contexts/AuthContext';
 import useTranslation from '../../i18n';
@@ -71,21 +72,13 @@ const LoginScreen: React.FC = () => {
         setIsLoading(false);
       }
     } else {
-      // Handle registration
-      Alert.alert(
-        t('registerSuccess'),
-        t('accountCreatedSuccess'),
-        [{ text: 'OK', onPress: () => setIsLogin(true) }]
-      );
+      // Navigate to SignUp screen
+      navigation.navigate(ROUTES.SIGNUP);
     }
   };
 
   const handleForgotPassword = () => {
-    Alert.alert(
-      t('passwordRecovery'),
-      t('passwordResetInstructions'),
-      [{ text: 'OK' }]
-    );
+    navigation.navigate(ROUTES.FORGOT_PASSWORD);
   };
 
   const handleSocialLogin = (platform: string) => {

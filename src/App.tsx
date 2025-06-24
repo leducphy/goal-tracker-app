@@ -13,6 +13,8 @@ import ToastProvider from './components/ToastProvider';
 import useTranslation from './i18n';
 import MainNavigation from './navigation/MainNavigation';
 import LoginScreen from './screens/auth/Index';
+import SignUpForm from './screens/auth/SignUpForm';
+import ForgotForm from './screens/auth/ForgotForm';
 import CheckInScreen from './screens/checkin/Index';
 import AchievementsScreen from './screens/goals/Achievements';
 import CreateGoalScreen from './screens/goals/LongTermForm';
@@ -31,6 +33,8 @@ import useTheme from './styles/theme';
 
 export type RootStackParamList = {
   [ROUTES.LOGIN]: undefined;
+  [ROUTES.SIGNUP]: undefined;
+  [ROUTES.FORGOT_PASSWORD]: undefined;
   [ROUTES.MAIN]: undefined;
   [ROUTES.SETTINGS]: undefined;
   [ROUTES.ACCOUNT_INFO]: undefined;
@@ -82,8 +86,12 @@ const AppContent = () => {
           }}
         >
           {!isAuthenticated ? (
-            // Not authenticated - show login screen
-            <Stack.Screen name={ROUTES.LOGIN} component={LoginScreen} />
+            // Not authenticated - show auth screens
+            <>
+              <Stack.Screen name={ROUTES.LOGIN} component={LoginScreen} />
+              <Stack.Screen name={ROUTES.SIGNUP} component={SignUpForm} />
+              <Stack.Screen name={ROUTES.FORGOT_PASSWORD} component={ForgotForm} />
+            </>
           ) : (
             // Authenticated - show main app
             <>

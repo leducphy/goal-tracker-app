@@ -3,6 +3,8 @@
  */
 export const ROUTES = {
   LOGIN: 'Login',
+  SIGNUP: 'SignUp',
+  FORGOT_PASSWORD: 'ForgotPassword',
   MAIN: 'Main',
   
   // Tab routes

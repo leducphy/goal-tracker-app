@@ -7,6 +7,23 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface RegisterRequest {
+  fullName: string;
+  email: string;
+  password: string;
+}
+
+export interface VerifyOtpRequest {
+  email: string;
+  otp: string;
+}
+
+export interface ResetPasswordRequest {
+  email: string;
+  otp: string;
+  newPassword: string;
+}
+
 export interface RefreshTokenResponse {
   user: UserData;
   access_token: string;
@@ -59,6 +76,155 @@ class AuthService {
 
     } catch (error) {
       console.error('❌ Login error:', error);
+      throw error;
+    }
+  }
+
+  async register(userData: RegisterRequest): Promise<ApiResponse<any>> {
+    try {
+      console.log('👤 Attempting registration for:', userData.email);
+      
+      const registerUrl = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.REGISTER}`;
+      const response = await fetch(registerUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': '*/*',
+        },
+        body: JSON.stringify(userData),
+      });
+
+      console.log('👤 Register URL:', registerUrl);
+      console.log('👤 Register response status:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Registration failed with status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ Registration successful, awaiting OTP verification');
+
+      return {
+        data,
+        message: 'Registration successful, awaiting OTP verification',
+        status: response.status,
+        success: true,
+      };
+
+    } catch (error) {
+      console.error('❌ Registration error:', error);
+      throw error;
+    }
+  }
+
+  async verifyOtp(verifyData: VerifyOtpRequest): Promise<ApiResponse<any>> {
+    try {
+      console.log('🔑 Attempting OTP verification for:', verifyData.email);
+      
+      const verifyOtpUrl = `${API_CONFIG.BASE_URL}/api/v1/auth/verify-otp`;
+      const response = await fetch(verifyOtpUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': '*/*',
+        },
+        body: JSON.stringify(verifyData),
+      });
+
+      console.log('🔑 Verify OTP response status:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `OTP verification failed with status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ OTP verification successful');
+
+      return {
+        data,
+        message: 'OTP verification successful',
+        status: response.status,
+        success: true,
+      };
+
+    } catch (error) {
+      console.error('❌ OTP verification error:', error);
+      throw error;
+    }
+  }
+
+  async forgotPassword(email: string): Promise<ApiResponse<any>> {
+    try {
+      console.log('🔐 Requesting password reset for:', email);
+      
+      const forgotPasswordUrl = `${API_CONFIG.BASE_URL}/api/v1/auth/forgot-password`;
+      const response = await fetch(forgotPasswordUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': '*/*',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      console.log('🔐 Forgot password response status:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Password reset request failed with status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ Password reset email sent');
+
+      return {
+        data,
+        message: 'Password reset email sent',
+        status: response.status,
+        success: true,
+      };
+
+    } catch (error) {
+      console.error('❌ Password reset request error:', error);
+      throw error;
+    }
+  }
+
+  async resetPassword(resetData: ResetPasswordRequest): Promise<ApiResponse<any>> {
+    try {
+      console.log('🔐 Resetting password for:', resetData.email);
+      
+      const resetPasswordUrl = `${API_CONFIG.BASE_URL}/api/v1/auth/reset-password`;
+      const response = await fetch(resetPasswordUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': '*/*',
+        },
+        body: JSON.stringify(resetData),
+      });
+
+      console.log('🔐 Reset password response status:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Password reset failed with status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ Password reset successful');
+
+      return {
+        data,
+        message: 'Password reset successful',
+        status: response.status,
+        success: true,
+      };
+
+    } catch (error) {
+      console.error('❌ Password reset error:', error);
       throw error;
     }
   }
