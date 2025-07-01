@@ -11,9 +11,11 @@ export const translations = {
     login: "Đăng nhập",
     register: "Đăng ký",
     email: "Email",
+    username: "Tên đăng nhập",
     password: "Mật khẩu",
     confirmPassword: "Xác nhận mật khẩu",
     enterEmail: "Nhập email của bạn",
+    enterUsername: "Nhập tên đăng nhập của bạn",
     enterPassword: "Nhập mật khẩu",
     loginMessage: "Đăng nhập để tiếp tục",
     registerMessage: "Tạo tài khoản mới",
@@ -193,6 +195,7 @@ export const translations = {
     currentPassword: "Mật khẩu hiện tại",
     newPassword: "Mật khẩu mới",
     saveChanges: "Lưu thay đổi",
+    enterFullName: "Nhập họ và tên của bạn",
 
     // Notifications Settings
     notificationSettings: "Quản lý cách bạn nhận thông báo",
@@ -457,9 +460,11 @@ export const translations = {
     login: "Login",
     register: "Register",
     email: "Email",
+    username: "Login Name",
     password: "Password",
     confirmPassword: "Confirm Password",
     enterEmail: "Enter your email",
+    enterUsername: "Enter your login name",
     enterPassword: "Enter your password",
     loginMessage: "Login to continue",
     registerMessage: "Create a new account",
@@ -639,6 +644,7 @@ export const translations = {
     currentPassword: "Current Password",
     newPassword: "New Password",
     saveChanges: "Save Changes",
+    enterFullName: "Enter your full name",
 
     // Notifications Settings
     notificationSettings: "Manage how you receive notifications",

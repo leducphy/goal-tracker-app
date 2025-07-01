@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { authService, LoginRequest } from '../api/services/authService';
+import { authService, LoginRequest, RegisterRequest } from '../api/services/authService';
 import { UserData } from '../utils/tokenStorage';
 import { userService } from '../utils/userService';
 
@@ -8,6 +8,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (credentials: LoginRequest) => Promise<void>;
+  register: (userData: RegisterRequest) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -108,11 +109,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const register = async (userData: RegisterRequest) => {
+    try {
+      await authService.register(userData);
+      console.log('✅ User registered successfully');
+    } catch (error) {
+      console.error('❌ Error registering user:', error);
+      throw error;
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isAuthenticated,
     isLoading,
     login,
+    register,
     logout,
     refreshUser,
   };

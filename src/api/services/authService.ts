@@ -3,7 +3,13 @@ import { API_CONFIG } from '../../constants/API_CONSTANTS';
 import { tokenStorage, LoginResponse, UserData } from '../../utils/tokenStorage';
 
 export interface LoginRequest {
-  email: string;
+  username: string;
+  password: string;
+}
+
+export interface RegisterRequest {
+  fullName: string;
+  username: string;
   password: string;
 }
 
@@ -18,7 +24,7 @@ export interface RefreshTokenResponse {
 class AuthService {
   async login(credentials: LoginRequest): Promise<ApiResponse<LoginResponse>> {
     try {
-      console.log('🔐 Attempting login for:', credentials.email);
+      console.log('🔐 Attempting login for:', credentials.username);
       
       const loginUrl = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.LOGIN}`;
       const response = await fetch(loginUrl, {
@@ -59,6 +65,44 @@ class AuthService {
 
     } catch (error) {
       console.error('❌ Login error:', error);
+      throw error;
+    }
+  }
+
+  async register(userData: RegisterRequest): Promise<ApiResponse<any>> {
+    try {
+      console.log('📝 Attempting registration for:', userData.username);
+      
+      const registerUrl = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.REGISTER}`;
+      const response = await fetch(registerUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': '*/*',
+        },
+        body: JSON.stringify(userData),
+      });
+
+      console.log('📝 Register URL:', registerUrl);
+      console.log('📝 Register response status:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Registration failed with status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ Registration successful for user:', userData.username);
+
+      return {
+        data,
+        message: 'Registration successful',
+        status: response.status,
+        success: true,
+      };
+
+    } catch (error) {
+      console.error('❌ Registration error:', error);
       throw error;
     }
   }
