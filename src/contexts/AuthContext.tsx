@@ -75,13 +75,39 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const refreshUser = async () => {
     try {
-      const userData = await userService.getCurrentUser();
-      if (userData) {
-        setUser(userData);
-        console.log('✅ User data refreshed:', userData);
+      // Check authentication status and user data
+      const isLoggedIn = await userService.isLoggedIn();
+      
+      if (isLoggedIn) {
+        const userData = await userService.getCurrentUser();
+        if (userData) {
+          setUser(userData);
+          setIsAuthenticated(true);
+          console.log('✅ User data refreshed and authenticated:', userData);
+        } else {
+          setUser(null);
+          setIsAuthenticated(false);
+          console.log('❌ No user data found, setting unauthenticated');
+        }
+      } else {
+        // Fallback to authService for backward compatibility
+        const authenticated = await authService.isAuthenticated();
+        
+        if (authenticated) {
+          const userResponse = await authService.getCurrentUser();
+          setUser(userResponse.data);
+          setIsAuthenticated(true);
+          console.log('✅ User refreshed via authService:', userResponse.data);
+        } else {
+          setUser(null);
+          setIsAuthenticated(false);
+          console.log('❌ No authenticated user found during refresh');
+        }
       }
     } catch (error) {
       console.error('❌ Error refreshing user data:', error);
+      setUser(null);
+      setIsAuthenticated(false);
     }
   };
 

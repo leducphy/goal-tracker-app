@@ -284,8 +284,8 @@ export const translations = {
     transactionType: "Loại giao dịch",
     amount: "Số tiền",
     selectCategory: "Chọn danh mục",
-    transactionDate: "Ngày giao dịch",
-    notes: "Mô tả",
+    transactionDate: "Ngày giao dịch", 
+    transactionNotes: "Mô tả",
     enterNotes: "Nhập mô tả giao dịch",
     saveTransaction: "Lưu giao dịch",
 
@@ -736,7 +736,7 @@ export const translations = {
     amount: "Amount",
     selectCategory: "Select Category",
     transactionDate: "Transaction Date",
-    notes: "Notes",
+    transactionNotes: "Notes",
     enterNotes: "Enter transaction description",
     saveTransaction: "Save Transaction",
 

@@ -1,9 +1,9 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { zodResolver } from '@hookform/resolvers/zod';
+
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -13,39 +13,58 @@ import {
   Platform,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
   ScrollView,
 } from 'react-native';
+import { useForm, Controller } from 'react-hook-form';
 
-import { RootStackParamList } from '../../App';
 import { useAppContext } from '../../contexts/AppContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLogin, useRegister, useGoogleLogin } from '../../hooks/useAuth';
 import useTranslation from '../../i18n';
 import useTheme from '../../styles/theme';
 import { CustomInput } from '../../components/common';
-
-type LoginScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
+import { LoginFormData, RegisterFormData, loginSchema, registerSchema } from '../../types/auth';
+import { googleAuthService } from '../../services/googleAuth';
+import { formatAuthError, logError } from '../../utils/errorUtils';
 
 const LoginScreen: React.FC = () => {
-  const [fullName, setFullName] = useState<string>('');
-  const [username, setUsername] = useState<string>('admin');
-  const [password, setPassword] = useState<string>('String');
   const [isLogin, setIsLogin] = useState<boolean>(true);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [googleSignInAttempts, setGoogleSignInAttempts] = useState<number>(0);
+  const [lastGoogleSignInTime, setLastGoogleSignInTime] = useState<number>(0);
   
-  // Refs for input fields
-  const fullNameRef = useRef<TextInput>(null);
-  const usernameRef = useRef<TextInput>(null);
-  const passwordRef = useRef<TextInput>(null);
-  
-  const navigation = useNavigation<LoginScreenNavigationProp>();
-  const { login, register } = useAuth();
   const { t } = useTranslation();
   const theme = useTheme();
   const { language, setLanguage } = useAppContext();
+  const { refreshUser } = useAuth();
+
+  // React Query mutations
+  const loginMutation = useLogin();
+  const registerMutation = useRegister();
+  const googleLoginMutation = useGoogleLogin();
+
+  // React Hook Form setup
+  const loginForm = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      username: __DEV__ ? 'admin' : '',
+      password: __DEV__ ? 'String' : '',
+    },
+  });
+
+  const registerForm = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      fullName: '',
+      username: '',
+      password: '',
+    },
+  });
+
+  const currentForm = isLogin ? loginForm : registerForm;
+  const isLoading = loginMutation.isPending || registerMutation.isPending || googleLoginMutation.isPending;
 
   // Get gradient colors based on theme
   const getGradientColors = (): readonly [ColorValue, ColorValue, ColorValue, ColorValue] => {
@@ -56,61 +75,106 @@ const LoginScreen: React.FC = () => {
     }
   };
 
-  const handleAuth = async () => {
+  const handleAuth = (data: LoginFormData | RegisterFormData) => {
     if (isLogin) {
-      if (!username || !password) {
-        Alert.alert('Lỗi', 'Vui lòng nhập tên đăng nhập và mật khẩu');
-        return;
-      }
-
-      setIsLoading(true);
-      try {
-        await login({ username, password });
-      } catch (error) {
-        console.error('Login error:', error);
-        Alert.alert(
-          'Đăng nhập thất bại',
-          error instanceof Error ? error.message : 'Có lỗi xảy ra. Vui lòng thử lại.',
-          [{ text: 'OK' }]
-        );
-      } finally {
-        setIsLoading(false);
-      }
+      loginMutation.mutate(data as LoginFormData, {
+        onSuccess: async () => {
+          await refreshUser();
+          console.log('✅ Login successful, AuthContext refreshed');
+        },
+        onError: (error) => {
+          logError('LOGIN', error, { username: (data as LoginFormData).username });
+          const errorDetails = formatAuthError(error);
+          Alert.alert(errorDetails.title, errorDetails.message, [{ text: 'OK' }]);
+        },
+      });
     } else {
-      // Registration validation
-      if (!fullName || !username || !password) {
-        Alert.alert('Lỗi', 'Vui lòng điền đầy đủ thông tin');
-        return;
-      }
-
-      if (password.length < 6) {
-        Alert.alert('Lỗi', 'Mật khẩu phải có ít nhất 6 ký tự');
-        return;
-      }
-
-      setIsLoading(true);
-      try {
-        await register({ fullName, username, password });
-        Alert.alert(
-          'Đăng ký thành công',
-          'Tài khoản của bạn đã được tạo thành công! Vui lòng đăng nhập.',
-          [{ text: 'OK', onPress: () => setIsLogin(true) }]
-        );
-        // Clear form after successful registration
-        setFullName('');
-        setUsername('');
-        setPassword('');
-      } catch (error) {
-        console.error('Registration error:', error);
-        Alert.alert(
-          'Đăng ký thất bại',
-          error instanceof Error ? error.message : 'Có lỗi xảy ra. Vui lòng thử lại.',
-          [{ text: 'OK' }]
-        );
-      } finally {
-        setIsLoading(false);
-      }
+      registerMutation.mutate(data as RegisterFormData, {
+        onSuccess: () => {
+          Alert.alert(
+            'Đăng ký thành công',
+            'Tài khoản của bạn đã được tạo thành công! Vui lòng đăng nhập.',
+            [{ text: 'OK', onPress: () => setIsLogin(true) }]
+          );
+          registerForm.reset();
+        },
+        onError: (error) => {
+          logError('REGISTER', error, { username: (data as RegisterFormData).username });
+          const errorDetails = formatAuthError(error);
+          Alert.alert(errorDetails.title, errorDetails.message, [{ text: 'OK' }]);
+        },
+      });
     }
+  };
+
+  const handleGoogleLogin = () => {
+    const currentTime = Date.now();
+    const timeSinceLastAttempt = currentTime - lastGoogleSignInTime;
+    const DEBOUNCE_TIME = 2000; // 2 seconds
+    
+    // Prevent double tap - check if already loading
+    if (googleLoginMutation.isPending) {
+      console.log('🔄 Google login already in progress, ignoring duplicate call');
+      return;
+    }
+
+    // Debounce protection - prevent rapid successive calls
+    if (timeSinceLastAttempt < DEBOUNCE_TIME) {
+      console.log(`⏱️ Google Sign-In debounced (${timeSinceLastAttempt}ms since last attempt, minimum ${DEBOUNCE_TIME}ms required)`);
+      return;
+    }
+
+    // Check if Google Sign-In is properly configured
+    if (!googleAuthService.isGoogleSignInConfigured()) {
+      Alert.alert(
+        'Cấu hình Google Sign-In',
+        'Google Sign-In chưa được cấu hình đúng. Vui lòng kiểm tra file GoogleService-Info.plist hoặc biến môi trường.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
+    console.log('🔐 Initiating Google Sign-In...');
+    
+    // Update last attempt time
+    setLastGoogleSignInTime(currentTime);
+    
+    // Track attempt
+    const attemptNumber = googleSignInAttempts + 1;
+    setGoogleSignInAttempts(attemptNumber);
+    console.log(`🔢 Google Sign-In attempt #${attemptNumber}`);
+    
+    googleLoginMutation.mutate(undefined, {
+      onSuccess: async (result) => {
+        console.log('🔐 Google Sign-In mutation completed:', result.type);
+        
+        if (result.type === 'success') {
+          // Refresh AuthContext to update authentication state
+          await refreshUser();
+          console.log('✅ Google login successful, AuthContext refreshed');
+          
+          Alert.alert(
+            'Đăng nhập Google thành công',
+            `Chào mừng ${result.user?.name || result.user?.email}!`,
+            [{ text: 'OK' }]
+          );
+          // Reset attempts on success
+          setGoogleSignInAttempts(0);
+        } else if (result.type === 'cancel') {
+          // Service already provides detailed cancel logging with session ID
+          // Just log if this happens multiple times quickly
+          if (attemptNumber > 1) {
+            console.warn(`⚠️ Multiple Google Sign-In cancellations detected (${attemptNumber} times)`);
+          }
+        }
+      },
+      onError: (error) => {
+        console.log(`❌ Google Sign-In mutation error occurred (attempt #${attemptNumber})`);
+        logError('GOOGLE_LOGIN', error, { attempt: attemptNumber });
+        const errorDetails = formatAuthError(error);
+        Alert.alert(errorDetails.title, errorDetails.message, [{ text: 'OK' }]);
+      },
+    });
   };
 
   const handleForgotPassword = () => {
@@ -122,19 +186,22 @@ const LoginScreen: React.FC = () => {
   };
 
   const handleSocialLogin = (platform: string) => {
-    Alert.alert(
-      `${t('loginWithSocial')} ${platform}`,
-      t('featureInDevelopment'),
-      [{ text: 'OK' }]
-    );
+    if (platform === 'Google') {
+      handleGoogleLogin();
+    } else {
+      Alert.alert(
+        `${t('loginWithSocial')} ${platform}`,
+        t('featureInDevelopment'),
+        [{ text: 'OK' }]
+      );
+    }
   };
 
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
-    // Clear form when switching modes
-    setFullName('');
-    setUsername('');
-    setPassword('');
+    // Reset forms when switching modes
+    loginForm.reset();
+    registerForm.reset();
   };
 
   const VI_FLAG = '🇻🇳';
@@ -229,50 +296,114 @@ const LoginScreen: React.FC = () => {
             <View style={styles.formContainer}>
               {/* Full Name Input (Register Mode) */}
               {!isLogin && (
-                <CustomInput
-                  ref={fullNameRef}
-                  label={t('fullName')}
-                  placeholder={t('enterFullName')}
-                  icon="person-outline"
-                  value={fullName}
-                  onChangeText={setFullName}
-                  autoCapitalize="words"
-                  editable={!isLoading}
-                  theme={theme}
-                  returnKeyType="next"
-                  onSubmitEditing={() => usernameRef.current?.focus()}
+                <Controller
+                  control={registerForm.control}
+                  name="fullName"
+                  render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
+                    <CustomInput
+                      label={t('fullName')}
+                      placeholder={t('enterFullName')}
+                      icon="person-outline"
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      autoCapitalize="words"
+                      editable={!isLoading}
+                      theme={theme}
+                      returnKeyType="next"
+                      error={error?.message}
+                    />
+                  )}
                 />
               )}
 
               {/* Username Input */}
-              <CustomInput
-                ref={usernameRef}
-                label={t('username')}
-                placeholder={t('enterUsername')}
-                icon="person-outline"
-                value={username}
-                onChangeText={setUsername}
-                autoCapitalize="none"
-                editable={!isLoading}
-                theme={theme}
-                returnKeyType="next"
-                onSubmitEditing={() => passwordRef.current?.focus()}
-              />
+              {isLogin ? (
+                <Controller
+                  control={loginForm.control}
+                  name="username"
+                  render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
+                    <CustomInput
+                      label={t('username')}
+                      placeholder={t('enterUsername')}
+                      icon="person-outline"
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      autoCapitalize="none"
+                      editable={!isLoading}
+                      theme={theme}
+                      returnKeyType="next"
+                      error={error?.message}
+                    />
+                  )}
+                />
+              ) : (
+                <Controller
+                  control={registerForm.control}
+                  name="username"
+                  render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
+                    <CustomInput
+                      label={t('username')}
+                      placeholder={t('enterUsername')}
+                      icon="person-outline"
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      autoCapitalize="none"
+                      editable={!isLoading}
+                      theme={theme}
+                      returnKeyType="next"
+                      error={error?.message}
+                    />
+                  )}
+                />
+              )}
               
               {/* Password Input */}
-              <CustomInput
-                ref={passwordRef}
-                label={t('password')}
-                placeholder={t('enterPassword')}
-                icon="lock-closed-outline"
-                value={password}
-                onChangeText={setPassword}
-                editable={!isLoading}
-                theme={theme}
-                showPasswordToggle={true}
-                returnKeyType="done"
-                onSubmitEditing={handleAuth}
-              />
+              {isLogin ? (
+                <Controller
+                  control={loginForm.control}
+                  name="password"
+                  render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
+                    <CustomInput
+                      label={t('password')}
+                      placeholder={t('enterPassword')}
+                      icon="lock-closed-outline"
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      editable={!isLoading}
+                      theme={theme}
+                      showPasswordToggle={true}
+                      returnKeyType="done"
+                      error={error?.message}
+                      onSubmitEditing={loginForm.handleSubmit(handleAuth)}
+                    />
+                  )}
+                />
+              ) : (
+                <Controller
+                  control={registerForm.control}
+                  name="password"
+                  render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
+                    <CustomInput
+                      label={t('password')}
+                      placeholder={t('enterPassword')}
+                      icon="lock-closed-outline"
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      editable={!isLoading}
+                      theme={theme}
+                      showPasswordToggle={true}
+                      returnKeyType="done"
+                      error={error?.message}
+                      onSubmitEditing={registerForm.handleSubmit(handleAuth)}
+                    />
+                  )}
+                />
+              )}
               
               {/* Auth Button */}
               <TouchableOpacity
@@ -283,7 +414,7 @@ const LoginScreen: React.FC = () => {
                     opacity: isLoading ? 0.7 : 1
                   }
                 ]}
-                onPress={handleAuth}
+                onPress={currentForm.handleSubmit(handleAuth)}
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -328,18 +459,24 @@ const LoginScreen: React.FC = () => {
               <TouchableOpacity
                 style={[styles.socialButton, { 
                   backgroundColor: theme.colors.card,
-                  borderColor: theme.colors.border
+                  borderColor: theme.colors.border,
+                  opacity: isLoading ? 0.6 : 1
                 }]}
                 onPress={() => handleSocialLogin('Google')}
                 disabled={isLoading}
               >
-                <Ionicons name="logo-google" size={20} color="#DB4437" />
+                {googleLoginMutation.isPending ? (
+                  <ActivityIndicator size="small" color="#DB4437" />
+                ) : (
+                  <Ionicons name="logo-google" size={20} color="#DB4437" />
+                )}
               </TouchableOpacity>
               
               <TouchableOpacity
                 style={[styles.socialButton, { 
                   backgroundColor: theme.colors.card,
-                  borderColor: theme.colors.border
+                  borderColor: theme.colors.border,
+                  opacity: isLoading ? 0.6 : 1
                 }]}
                 onPress={() => handleSocialLogin('Facebook')}
                 disabled={isLoading}
@@ -350,7 +487,8 @@ const LoginScreen: React.FC = () => {
               <TouchableOpacity
                 style={[styles.socialButton, { 
                   backgroundColor: theme.colors.card,
-                  borderColor: theme.colors.border
+                  borderColor: theme.colors.border,
+                  opacity: isLoading ? 0.6 : 1
                 }]}
                 onPress={() => handleSocialLogin('Apple')}
                 disabled={isLoading}

@@ -1,10 +1,13 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+import { queryClient } from './config/queryClient';
 
 import { ROUTES } from './constants/ROUTES';
 import { AppProvider, useAppContext } from './contexts/AppContext';
@@ -121,13 +124,15 @@ const AppContent = () => {
 export default function App() {
   return (
     <GestureHandlerRootView style={styles.container}>
-      <AppProvider>
-        <AuthProvider>
-          <ToastProvider>
-            <AppContent />
-          </ToastProvider>
-        </AuthProvider>
-      </AppProvider>
+      <QueryClientProvider client={queryClient}>
+        <AppProvider>
+          <AuthProvider>
+            <ToastProvider>
+              <AppContent />
+            </ToastProvider>
+          </AuthProvider>
+        </AppProvider>
+      </QueryClientProvider>
     </GestureHandlerRootView>
   );
 }

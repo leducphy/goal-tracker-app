@@ -40,3 +40,16 @@ app-example
 
 # vs code
 .vscode/
+
+# google
+GoogleService-Info.plist
+google-services.json
+
+# ios
+ios/
+
+# android
+android/
+
+# web
+web/
