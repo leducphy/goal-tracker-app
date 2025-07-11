@@ -40,7 +40,7 @@ export const useGoogleLogin = () => {
       const result = await googleAuthService.signInWithGoogle();
       
       if (result.type === 'success' && result.user) {
-        console.log('✅ Google login successful:', result.user);
+        console.log('✅ Google login successful:', result.idToken);
         return result;
       } else if (result.type === 'cancel') {
         // Service already logs the cancel with session ID, no need to duplicate

@@ -1,38 +1,51 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { RootStackParamList } from '../../App';
-import { DailyGoal, DailyGoalsResponse, goalsService, GoalStatus } from '../../api';
-import SectionHeader from '../../components/common/SectionHeader';
-import GoalListItem from '../../components/goals/GoalListItem';
-import useTranslation from '../../i18n';
-import useTheme from '../../styles/theme';
+import { RootStackParamList } from "../../App";
+import {
+  DailyGoal,
+  DailyGoalsResponse,
+  goalsService,
+  GoalStatus,
+} from "../../api";
+import SectionHeader from "../../components/common/SectionHeader";
+import GoalListItem from "../../components/goals/GoalListItem";
+import useTranslation from "../../i18n";
+import useTheme from "../../styles/theme";
 
-type CheckInScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
+type CheckInScreenNavigationProp =
+  NativeStackNavigationProp<RootStackParamList>;
 
 const CheckInScreen: React.FC = () => {
   const navigation = useNavigation<CheckInScreenNavigationProp>();
   const { t } = useTranslation();
   const theme = useTheme();
-  
+
   const [activeTab, setActiveTab] = useState(0);
-  const tabs = [t('goalsAll'), t('goals'), t('work')];
-  
+  const tabs = [t("goalsAll"), t("goals"), t("work")];
+
   // API state management
   const [goals, setGoals] = useState<DailyGoal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [goalsData, setGoalsData] = useState<DailyGoalsResponse | null>(null);
-  
+
   // Fetch daily goals on component mount
   useEffect(() => {
     fetchDailyGoals();
   }, []);
-  
+
   const fetchDailyGoals = async () => {
     try {
       setLoading(true);
@@ -41,65 +54,72 @@ const CheckInScreen: React.FC = () => {
       setGoalsData(data);
       setGoals(data.goals);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Lỗi khi tải dữ liệu');
-      console.error('Error fetching daily goals:', err);
+      setError(err instanceof Error ? err.message : "Lỗi khi tải dữ liệu");
+      console.error("Error fetching daily goals:", err);
       // Show alert to user
       Alert.alert(
-        'Lỗi',
-        'Không thể tải danh sách mục tiêu hàng ngày. Vui lòng thử lại.',
+        "Lỗi",
+        "Không thể tải danh sách mục tiêu hàng ngày. Vui lòng thử lại.",
         [
-          { text: 'Thử lại', onPress: fetchDailyGoals },
-          { text: 'Hủy', style: 'cancel' }
+          { text: "Thử lại", onPress: fetchDailyGoals },
+          { text: "Hủy", style: "cancel" },
         ]
       );
     } finally {
       setLoading(false);
     }
   };
-  
+
   const handleToggleGoalStatus = async (id: string) => {
     try {
-      const goal = goals.find(g => g.id === id);
+      const goal = goals.find((g) => g.id === id);
       if (!goal) return;
-      
+
       // Toggle between completed and other statuses
-      const newStatus: GoalStatus = goal.status === 'completed' 
-        ? 'inProgress'
-        : 'completed';
-      
+      const newStatus: GoalStatus =
+        goal.status === "completed" ? "inProgress" : "completed";
+
       // Optimistic update
-      setGoals(prevGoals => 
-        prevGoals.map(g => 
-          g.id === id ? { ...g, status: newStatus } : g
-        )
+      setGoals((prevGoals) =>
+        prevGoals.map((g) => (g.id === id ? { ...g, status: newStatus } : g))
       );
-      
+
       // Update on server
       await goalsService.updateGoalStatus(id, newStatus);
-      
+
       // Update goals data for progress calculation
       if (goalsData) {
-        const updatedGoals = goals.map(g => g.id === id ? { ...g, status: newStatus } : g);
-        const completedGoals = updatedGoals.filter(g => g.status === 'completed');
+        const updatedGoals = goals.map((g) =>
+          g.id === id ? { ...g, status: newStatus } : g
+        );
+        const completedGoals = updatedGoals.filter(
+          (g) => g.status === "completed"
+        );
         setGoalsData({
           ...goalsData,
           goals: updatedGoals,
           completedGoals: completedGoals.length,
-          completionPercentage: Math.round((completedGoals.length / updatedGoals.length) * 100)
+          completionPercentage: Math.round(
+            (completedGoals.length / updatedGoals.length) * 100
+          ),
         });
       }
     } catch (err) {
-      console.error('Error updating goal status:', err);
+      console.error("Error updating goal status:", err);
       // Revert optimistic update
       fetchDailyGoals();
-      Alert.alert('Lỗi', 'Không thể cập nhật trạng thái mục tiêu. Vui lòng thử lại.');
+      Alert.alert(
+        "Lỗi",
+        "Không thể cập nhật trạng thái mục tiêu. Vui lòng thử lại."
+      );
     }
   };
-  
-  const completedGoals = goals.filter(goal => goal.status === 'completed');
-  const completionPercentage = goalsData?.completionPercentage || 
+
+  const completedGoals = goals.filter((goal) => goal.status === "completed");
+  const completionPercentage =
+    goalsData?.completionPercentage ||
     Math.round((completedGoals.length / Math.max(goals.length, 1)) * 100);
-  
+
   const renderTabs = () => {
     return (
       <View style={styles.tabContainer}>
@@ -107,22 +127,23 @@ const CheckInScreen: React.FC = () => {
           <TouchableOpacity
             key={index}
             style={[
-              styles.tab, 
-              activeTab === index && { 
-                borderBottomWidth: 2, 
-                borderBottomColor: theme.colors.primary 
-              }
+              styles.tab,
+              activeTab === index && {
+                borderBottomWidth: 2,
+                borderBottomColor: theme.colors.primary,
+              },
             ]}
             onPress={() => setActiveTab(index)}
           >
-            <Text 
+            <Text
               style={[
-                styles.tabText, 
-                { 
-                  color: activeTab === index 
-                    ? theme.colors.primary 
-                    : theme.colors.textSecondary 
-                }
+                styles.tabText,
+                {
+                  color:
+                    activeTab === index
+                      ? theme.colors.primary
+                      : theme.colors.textSecondary,
+                },
               ]}
             >
               {tab}
@@ -138,7 +159,9 @@ const CheckInScreen: React.FC = () => {
       return (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={theme.colors.primary} />
-          <Text style={[styles.loadingText, { color: theme.colors.textSecondary }]}>
+          <Text
+            style={[styles.loadingText, { color: theme.colors.textSecondary }]}
+          >
             Đang tải...
           </Text>
         </View>
@@ -148,11 +171,19 @@ const CheckInScreen: React.FC = () => {
     if (error && goals.length === 0) {
       return (
         <View style={styles.errorContainer}>
-          <Text style={[styles.errorText, { color: theme.colors.error || '#ff4444' }]}>
+          <Text
+            style={[
+              styles.errorText,
+              { color: theme.colors.error || "#ff4444" },
+            ]}
+          >
             {error}
           </Text>
-          <TouchableOpacity 
-            style={[styles.retryButton, { backgroundColor: theme.colors.primary }]}
+          <TouchableOpacity
+            style={[
+              styles.retryButton,
+              { backgroundColor: theme.colors.primary },
+            ]}
             onPress={fetchDailyGoals}
           >
             <Text style={styles.retryButtonText}>Thử lại</Text>
@@ -164,8 +195,10 @@ const CheckInScreen: React.FC = () => {
     if (goals.length === 0) {
       return (
         <View style={styles.emptyMessage}>
-          <Text style={[styles.emptyText, { color: theme.colors.textSecondary }]}>
-            {t('noGoalsToday')}
+          <Text
+            style={[styles.emptyText, { color: theme.colors.textSecondary }]}
+          >
+            {t("noGoalsToday")}
           </Text>
         </View>
       );
@@ -173,7 +206,7 @@ const CheckInScreen: React.FC = () => {
 
     return (
       <>
-        <SectionHeader title={t('yourGoalsList')} />
+        <SectionHeader title={t("yourGoalsList")} />
         <View style={styles.goalsList}>
           {goals.map((goal) => (
             <GoalListItem
@@ -190,40 +223,61 @@ const CheckInScreen: React.FC = () => {
       </>
     );
   };
-  
+
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <View style={[styles.header, { backgroundColor: theme.colors.card, borderBottomColor: theme.colors.border }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
+      <View
+        style={[
+          styles.header,
+          {
+            backgroundColor: theme.colors.card,
+            borderBottomColor: theme.colors.border,
+          },
+        ]}
+      >
         <View style={styles.headerContent}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}
           >
             <Ionicons name="chevron-back" size={24} color={theme.colors.text} />
           </TouchableOpacity>
           <View style={styles.headerTextContainer}>
-            <Text style={[styles.headerTitle, { color: theme.colors.text }]}>{t('dailyCheckin')}</Text>
-            <Text style={[styles.dateText, { color: theme.colors.textSecondary }]}>
-              {t('todayDate', { date: new Date().toLocaleDateString('vi-VN') })}
+            <Text style={[styles.headerTitle, { color: theme.colors.text }]}>
+              {t("dailyCheckin")}
+            </Text>
+            <Text
+              style={[styles.dateText, { color: theme.colors.textSecondary }]}
+            >
+              {t("todayDate", { date: new Date().toLocaleDateString("vi-VN") })}
             </Text>
           </View>
         </View>
       </View>
-      
+
       <View style={styles.content}>
         <View style={styles.progressContainer}>
-          <Text style={[styles.progressTitle, { color: theme.colors.text }]}>{t('todayProgress')}</Text>
-          <Text style={[styles.progressSubtitle, { color: theme.colors.textSecondary }]}>
-            {t('completionStatus', { 
-              completed: completedGoals.length, 
-              total: goals.length, 
-              percentage: completionPercentage 
+          <Text style={[styles.progressTitle, { color: theme.colors.text }]}>
+            {t("todayProgress")}
+          </Text>
+          <Text
+            style={[
+              styles.progressSubtitle,
+              { color: theme.colors.textSecondary },
+            ]}
+          >
+            {t("completionStatus", {
+              completed: completedGoals.length,
+              total: goals.length,
+              percentage: completionPercentage,
             })}
           </Text>
         </View>
-      
+
         {renderTabs()}
-        
+
         {renderContent()}
       </View>
     </SafeAreaView>
@@ -240,8 +294,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   headerContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   backButton: {
     marginRight: 10,
@@ -339,4 +393,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CheckInScreen; 
+export default CheckInScreen;

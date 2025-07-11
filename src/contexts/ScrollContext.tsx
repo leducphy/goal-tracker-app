@@ -1,5 +1,5 @@
-import React from 'react';
-import { Animated } from 'react-native';
+import React from "react";
+import { Animated } from "react-native";
 
 interface ScrollContextType {
   scrollY: Animated.Value;
@@ -12,4 +12,4 @@ export const ScrollContext = React.createContext<ScrollContextType>({
   setScrolling: () => {},
 });
 
-export default ScrollContext; 
+export default ScrollContext;

@@ -1,10 +1,10 @@
-import React, { createContext, ReactNode, useContext, useState } from 'react';
+import React, { createContext, ReactNode, useContext, useState } from "react";
 
 // Định nghĩa kiểu dữ liệu cho ngôn ngữ
-export type Language = 'vi' | 'en';
+export type Language = "vi" | "en";
 
 // Định nghĩa kiểu dữ liệu cho theme
-export type Theme = 'light' | 'dark';
+export type Theme = "light" | "dark";
 
 interface AppContextProps {
   language: Language;
@@ -16,9 +16,9 @@ interface AppContextProps {
 }
 
 const defaultContext: AppContextProps = {
-  language: 'vi',
+  language: "vi",
   setLanguage: () => {},
-  theme: 'light',
+  theme: "light",
   setTheme: () => {},
   isDarkMode: false,
   toggleTheme: () => {},
@@ -31,13 +31,13 @@ interface AppProviderProps {
 }
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('vi');
-  const [theme, setTheme] = useState<Theme>('light');
+  const [language, setLanguage] = useState<Language>("vi");
+  const [theme, setTheme] = useState<Theme>("light");
 
-  const isDarkMode = theme === 'dark';
+  const isDarkMode = theme === "dark";
 
   const toggleTheme = () => {
-    setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
+    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
   };
 
   return (
@@ -57,4 +57,4 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 };
 
 // Hook để dễ dàng sử dụng context
-export const useAppContext = () => useContext(AppContext); 
+export const useAppContext = () => useContext(AppContext);

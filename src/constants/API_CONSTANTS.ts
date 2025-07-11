@@ -8,57 +8,58 @@ export const API_CONFIG = {
   TIMEOUT: 10000, // 10 seconds
   ENDPOINTS: {
     // Auth endpoints
-    LOGIN: '/auth/authenticate',
-    REFRESH_TOKEN: '/auth/refresh-token',
-    LOGOUT: '/auth/logout',
-    REGISTER: '/auth/register',
-    
+    LOGIN: "/auth/authenticate",
+    GOOGLE_LOGIN: "/auth/google",
+    REFRESH_TOKEN: "/auth/refresh-token",
+    LOGOUT: "/auth/logout",
+    REGISTER: "/auth/register",
+
     // Goal endpoints
-    GOALS: '/goals',
-    DAILY_GOALS: '/goals/daily',
-    LONG_TERM: '/goals/long-term',
-    MEDIUM_TERM: '/goals/medium-term',
-    SHORT_TERM_GOALS: '/goals/short-term',
-    GOAL_DETAIL: '/goals/:id',
-    CREATE_GOAL: '/goals',
-    UPDATE_GOAL: '/goals/:id',
-    DELETE_GOAL: '/goals/:id',
-    
+    GOALS: "/goals",
+    DAILY_GOALS: "/goals/daily",
+    LONG_TERM: "/goals/long-term",
+    MEDIUM_TERM: "/goals/medium-term",
+    SHORT_TERM_GOALS: "/goals/short-term",
+    GOAL_DETAIL: "/goals/:id",
+    CREATE_GOAL: "/goals",
+    UPDATE_GOAL: "/goals/:id",
+    DELETE_GOAL: "/goals/:id",
+
     // User endpoints
-    USER_PROFILE: '/user/profile',
-    UPDATE_PROFILE: '/user/profile',
-    
+    USER_PROFILE: "/user/profile",
+    UPDATE_PROFILE: "/user/profile",
+
     // Achievement endpoints
-    ACHIEVEMENTS: '/achievements',
-    USER_ACHIEVEMENTS: '/achievements/user',
-    
+    ACHIEVEMENTS: "/achievements",
+    USER_ACHIEVEMENTS: "/achievements/user",
+
     // Group endpoints
-    GOAL_GROUPS: '/groups',
-    JOIN_GROUP: '/groups/:id/join',
-    LEAVE_GROUP: '/groups/:id/leave',
-    
+    GOAL_GROUPS: "/groups",
+    JOIN_GROUP: "/groups/:id/join",
+    LEAVE_GROUP: "/groups/:id/leave",
+
     // Finance endpoints
-    TRANSACTIONS: '/finance/transactions',
-    SAVINGS_GOALS: '/finance/savings',
-    BUDGETS: '/finance/budgets',
-    
+    TRANSACTIONS: "/finance/transactions",
+    SAVINGS_GOALS: "/finance/savings",
+    BUDGETS: "/finance/budgets",
+
     // Stats endpoints
-    PROGRESS_STATS: '/stats/progress',
-    GOAL_ANALYTICS: '/stats/goals',
-    
+    PROGRESS_STATS: "/stats/progress",
+    GOAL_ANALYTICS: "/stats/goals",
+
     // Journal endpoints
-    JOURNAL_ENTRIES: '/journal',
-    CREATE_ENTRY: '/journal',
-    
+    JOURNAL_ENTRIES: "/journal",
+    CREATE_ENTRY: "/journal",
+
     // Check-in endpoints
-    DAILY_CHECKIN: '/checkin/daily',
-    CHECKIN_HISTORY: '/checkin/history',
+    DAILY_CHECKIN: "/checkin/daily",
+    CHECKIN_HISTORY: "/checkin/history",
   },
 } as const;
 
 export const API_HEADERS = {
-  'Content-Type': 'application/json',
-  'Accept': 'application/json',
+  "Content-Type": "application/json",
+  Accept: "application/json",
 } as const;
 
 export const API_STATUS_CODES = {
@@ -77,42 +78,46 @@ export const API_STATUS_CODES = {
 } as const;
 
 export const API_ERROR_MESSAGES = {
-  NETWORK_ERROR: 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.',
-  TIMEOUT_ERROR: 'Yêu cầu bị hết thời gian chờ. Vui lòng thử lại.',
-  UNAUTHORIZED: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
-  FORBIDDEN: 'Bạn không có quyền thực hiện thao tác này.',
-  NOT_FOUND: 'Không tìm thấy dữ liệu yêu cầu.',
-  VALIDATION_ERROR: 'Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.',
-  SERVER_ERROR: 'Lỗi máy chủ. Vui lòng thử lại sau.',
-  UNKNOWN_ERROR: 'Đã xảy ra lỗi không xác định. Vui lòng thử lại.',
+  NETWORK_ERROR:
+    "Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.",
+  TIMEOUT_ERROR: "Yêu cầu bị hết thời gian chờ. Vui lòng thử lại.",
+  UNAUTHORIZED: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+  FORBIDDEN: "Bạn không có quyền thực hiện thao tác này.",
+  NOT_FOUND: "Không tìm thấy dữ liệu yêu cầu.",
+  VALIDATION_ERROR: "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.",
+  SERVER_ERROR: "Lỗi máy chủ. Vui lòng thử lại sau.",
+  UNKNOWN_ERROR: "Đã xảy ra lỗi không xác định. Vui lòng thử lại.",
 } as const;
 
 // Helper function to build endpoint URLs
-export const buildEndpoint = (endpoint: string, params: Record<string, string | number> = {}) => {
+export const buildEndpoint = (
+  endpoint: string,
+  params: Record<string, string | number> = {}
+) => {
   let url = endpoint;
-  
+
   // Replace path parameters
   Object.entries(params).forEach(([key, value]) => {
     url = url.replace(`:${key}`, String(value));
   });
-  
+
   return url;
 };
 
 // Helper function to build query string
 export const buildQueryString = (params: Record<string, any> = {}) => {
   const searchParams = new URLSearchParams();
-  
+
   Object.entries(params).forEach(([key, value]) => {
-    if (value !== null && value !== undefined && value !== '') {
+    if (value !== null && value !== undefined && value !== "") {
       if (Array.isArray(value)) {
-        value.forEach(item => searchParams.append(key, String(item)));
+        value.forEach((item) => searchParams.append(key, String(item)));
       } else {
         searchParams.append(key, String(value));
       }
     }
   });
-  
+
   const queryString = searchParams.toString();
-  return queryString ? `?${queryString}` : '';
-}; 
+  return queryString ? `?${queryString}` : "";
+};
